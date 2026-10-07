@@ -170,6 +170,46 @@ function closeOfficerModal() { document.getElementById('officerLoginModal').clas
 function openChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.remove('hidden'); }
 function closeChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.add('hidden'); }
 
+// Change Officer PIN
+function openChangeOfficerPinModal() {
+  document.getElementById('changeOfficerPinModal').classList.remove('hidden');
+  const select = document.getElementById('changePinOfficerSelect');
+  if (typeof loadTeamDropdown === 'function') {
+    loadTeamDropdown(select);
+  }
+  const currentOfficer = api.getCurrentOfficer();
+  if (currentOfficer && select) {
+    select.value = currentOfficer.id;
+  }
+}
+function closeChangeOfficerPinModal() { document.getElementById('changeOfficerPinModal').classList.add('hidden'); }
+
+document.getElementById('changeOfficerPinForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const memberId = document.getElementById('changePinOfficerSelect').value;
+  const oldPin = document.getElementById('currentOfficerPinInput').value;
+  const newPin = document.getElementById('newOfficerPinInput').value;
+
+  if (!memberId) {
+    alert('অনুগ্রহ করে কর্মকর্তা সিলেক্ট করুন');
+    return;
+  }
+
+  try {
+    const res = await api.changeOfficerPin(memberId, oldPin, newPin);
+    if (res.success) {
+      closeChangeOfficerPinModal();
+      showToast('পিন সফলভাবে পরিবর্তন হয়েছে');
+      document.getElementById('changeOfficerPinForm').reset();
+    } else {
+      alert(res.error || 'পিন পরিবর্তন ব্যর্থ হয়েছে');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('ত্রুটি: ' + err.message);
+  }
+});
+
 document.getElementById('changeAdminPinForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const oldPin = document.getElementById('currentAdminPinInput').value;
@@ -222,6 +262,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.closeOfficerModal = closeOfficerModal;
   window.openChangeAdminPinModal = openChangeAdminPinModal;
   window.closeChangeAdminPinModal = closeChangeAdminPinModal;
+  window.openChangeOfficerPinModal = openChangeOfficerPinModal;
+  window.closeChangeOfficerPinModal = closeChangeOfficerPinModal;
   window.handleAdminLogout = handleAdminLogout;
   window.handleLogoClick = handleLogoClick;
 

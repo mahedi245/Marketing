@@ -104,6 +104,12 @@
             <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
 
+          <!-- Change Officer PIN Button -->
+          <button onclick="openChangeOfficerPinModal()" class="p-2 sm:px-2.5 sm:py-1.5 text-zinc-300 hover:text-amber-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-semibold flex items-center space-x-1 transition-colors" title="Change PIN / পিন পরিবর্তন">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z"></path></svg>
+            <span class="hidden sm:inline">পিন পরিবর্তন</span>
+          </button>
+
           <!-- Theme Switcher -->
           <button onclick="openThemeConfigModal()" class="p-2 sm:px-3 sm:py-1.5 text-zinc-300 hover:text-primary-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-colors" title="Theme Color">
             <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
@@ -600,8 +606,7 @@
 
         <div>
           <label class="block text-xs font-bold text-zinc-400 mb-1">ব্যক্তিগত পিন *</label>
-          <input type="password" id="modalOfficerPin" maxlength="8" placeholder="পিন দিন (ডিফল্ট: 1234)" class="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-700 font-mono text-center text-sm text-white rounded-xl focus:border-primary-500 outline-hidden">
-          <p class="text-[11px] text-zinc-500 mt-1 text-center">শুরুতে সবার জন্য ডিফল্ট পিন: <b class="text-primary-400 font-mono">1234</b></p>
+          <input type="password" id="modalOfficerPin" maxlength="8" placeholder="আপনার পিন দিন" class="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-700 font-mono text-center text-sm text-white rounded-xl focus:border-primary-500 outline-hidden">
         </div>
 
         <div class="flex space-x-2 pt-2">
@@ -630,6 +635,36 @@
         </div>
         <div class="flex space-x-2 pt-2">
           <button type="button" onclick="closeChangeAdminPinModal()" class="w-1/2 py-2 border border-zinc-700 rounded-lg text-xs font-semibold text-zinc-400">বাতিল</button>
+          <button type="submit" class="w-1/2 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs font-bold">সেভ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHANGE OFFICER PIN MODAL -->
+  <!-- ========================================== -->
+  <div id="changeOfficerPinModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 hidden">
+    <div class="bg-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center border border-zinc-800">
+      <h3 class="text-base font-black text-white mb-2">নিজের পিন পরিবর্তন</h3>
+      <p class="text-xs text-zinc-400 mb-4">আপনার বর্তমান পিন ও নতুন ৪ ডিজিটের পিন লিখুন</p>
+      <form id="changeOfficerPinForm" class="space-y-3 text-left">
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">কর্মকর্তা নির্বাচন</label>
+          <select id="changePinOfficerSelect" required class="w-full px-3 py-2 bg-zinc-950 border border-zinc-700 rounded-lg text-sm text-white outline-hidden">
+            <option value="">-- আপনার নাম সিলেক্ট করুন --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">বর্তমান পিন</label>
+          <input type="password" id="currentOfficerPinInput" required placeholder="বর্তমান পিন দিন" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-700 rounded-lg text-sm text-white outline-hidden">
+        </div>
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1">নতুন পিন</label>
+          <input type="password" id="newOfficerPinInput" required minlength="4" placeholder="নতুন পিন দিন (কমপক্ষে ৪ সংখ্যা)" class="w-full px-3 py-2 bg-zinc-950 border border-zinc-700 rounded-lg text-sm text-white outline-hidden">
+        </div>
+        <div class="flex space-x-2 pt-2">
+          <button type="button" onclick="closeChangeOfficerPinModal()" class="w-1/2 py-2 border border-zinc-700 rounded-lg text-xs font-semibold text-zinc-400">বাতিল</button>
           <button type="submit" class="w-1/2 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs font-bold">সেভ করুন</button>
         </div>
       </form>
