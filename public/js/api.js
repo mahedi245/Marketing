@@ -155,6 +155,13 @@ const api = {
     return await res.json();
   },
 
+  async searchCustomerByPhone(phone) {
+    const res = await fetch(`${API_BASE}/visits/search?phone=${encodeURIComponent(phone)}`, {
+      headers: this.getAuthHeaders()
+    });
+    return await res.json();
+  },
+
   async createVisit(visitData) {
     const res = await fetch(`${API_BASE}/visits`, {
       method: 'POST',
@@ -177,6 +184,28 @@ const api = {
     const res = await fetch(`${API_BASE}/visits/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
+    });
+    return await res.json();
+  },
+
+  async getExpenses(filters = {}) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, value);
+      }
+    }
+    const res = await fetch(`${API_BASE}/expenses?${params.toString()}`, {
+      headers: this.getAuthHeaders()
+    });
+    return await res.json();
+  },
+
+  async createExpense(expenseData) {
+    const res = await fetch(`${API_BASE}/expenses`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(expenseData)
     });
     return await res.json();
   },

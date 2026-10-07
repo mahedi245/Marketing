@@ -13,6 +13,36 @@ async function initEntryForm() {
     dateInput.value = new Date().toISOString().split('T')[0];
   }
 
+  // Auto-fill customer profile based on phone number
+  const entryPhoneEl = document.getElementById('entryPhone');
+  let phoneTypingTimer;
+  if(entryPhoneEl) {
+    entryPhoneEl.addEventListener('input', () => {
+       clearTimeout(phoneTypingTimer);
+       phoneTypingTimer = setTimeout(async () => {
+          const val = entryPhoneEl.value.trim();
+          if (val.length >= 10) {
+             try {
+                const res = await api.searchCustomerByPhone(val);
+                if(res.success && res.data) {
+                   const { customer_name, site_name, address } = res.data;
+                   const cNameEl = document.getElementById('entryCustomer');
+                   const siteEl = document.getElementById('entrySite');
+                   const addrEl = document.getElementById('entryAddress');
+
+                   // Only fill if empty to avoid overwriting deliberate edits
+                   if(cNameEl && !cNameEl.value) cNameEl.value = customer_name;
+                   if(siteEl && !siteEl.value) siteEl.value = site_name;
+                   if(addrEl && !addrEl.value) addrEl.value = address;
+
+                   showToast('Previous customer info auto-filled!');
+                }
+             } catch(e) {}
+          }
+       }, 800);
+    });
+  }
+
   // Load team members
   const currentOfficer = api.getCurrentOfficer();
   await loadTeamDropdown(officerSelect, currentOfficer?.id);
@@ -47,6 +77,7 @@ async function initEntryForm() {
       const visitDate = dateInput.value;
       const notes = document.getElementById('entryNotes').value.trim();
       const nextFollowUp = document.getElementById('entryFollowUp').value;
+      const photoData = document.getElementById('entryPhotoData')?.value;
 
       if (!memberId) {
         alert(t('officer_placeholder'));
@@ -98,6 +129,24 @@ async function initEntryForm() {
           next_follow_up_date: nextFollowUp || null
         };
 
+        if (photoData) payload.photo_data = photoData;
+
+        // Add GPS location
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            });
+          });
+          payload.lat = position.coords.latitude;
+          payload.long = position.coords.longitude;
+        } catch (geolocationError) {
+          console.warn('Geolocation failed or denied:', geolocationError);
+          showToast('লোকেশন পাওয়া যায়নি, তবুও ভিজিটটি সেভ হচ্ছে।');
+        }
+
         const result = await api.createVisit(payload);
 
         if (result.success) {
@@ -113,6 +162,10 @@ async function initEntryForm() {
           document.getElementById('entryPhone').value = '';
           document.getElementById('entryNotes').value = '';
           document.getElementById('entryFollowUp').value = '';
+          if (document.getElementById('entryPhotoData')) {
+             document.getElementById('entryPhotoData').value = '';
+             document.getElementById('entryPhotoPreview').src = '/logo.png';
+          }
 
           // Reset status to Interested
           selectedStatus = 'Interested';

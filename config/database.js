@@ -123,9 +123,47 @@ export async function initDatabase() {
       status TEXT NOT NULL CHECK(status IN ('Interested', 'Follow-up', 'Need Quotation', 'Closed/Won', 'Not Interested')),
       notes TEXT,
       next_follow_up_date DATE,
+      photo_data TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE RESTRICT
+    );
+  `);
+
+  // Ensure photo_data and location exists in visits table
+  try {
+    const visitsTableInfo = await db.prepare("PRAGMA table_info(visits)").all();
+    const hasVisitPhoto = visitsTableInfo.some((col) => col.name === 'photo_data');
+    if (!hasVisitPhoto) {
+      await db.exec("ALTER TABLE visits ADD COLUMN photo_data TEXT");
+    }
+    const hasLat = visitsTableInfo.some((col) => col.name === 'lat');
+    if (!hasLat) {
+      await db.exec("ALTER TABLE visits ADD COLUMN lat REAL");
+    }
+    const hasLong = visitsTableInfo.some((col) => col.name === 'long');
+    if (!hasLong) {
+      await db.exec("ALTER TABLE visits ADD COLUMN long REAL");
+    }
+  } catch (err) {
+    console.error('Migration warning (visits column addition):', err.message);
+  }
+
+  // Create expenses table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      member_id INTEGER NOT NULL,
+      visit_id INTEGER,
+      amount REAL NOT NULL,
+      description TEXT,
+      category TEXT NOT NULL CHECK(category IN ('Transport', 'Food', 'Accommodation', 'Other')),
+      expense_date DATE NOT NULL,
+      status TEXT NOT NULL DEFAULT 'Pending' CHECK(status IN ('Pending', 'Approved', 'Rejected')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (member_id) REFERENCES team_members(id) ON DELETE CASCADE,
+      FOREIGN KEY (visit_id) REFERENCES visits(id) ON DELETE SET NULL
     );
   `);
 

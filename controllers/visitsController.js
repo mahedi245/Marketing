@@ -24,6 +24,7 @@ export async function getVisits(req, res) {
       startDate,
       endDate,
       followUpOnly,
+      dueFollowUpOnly,
       sortBy = 'visit_date',
       sortOrder = 'DESC'
     } = req.query;
@@ -67,6 +68,13 @@ export async function getVisits(req, res) {
       whereClauses.push('v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != ""');
     }
 
+    if (dueFollowUpOnly === 'true') {
+      // Due today or earlier, and not already closed
+      const todayDate = new Date().toISOString().split('T')[0];
+      whereClauses.push('v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != "" AND v.next_follow_up_date <= ? AND v.status != "Closed/Won" AND v.status != "Not Interested"');
+      params.push(todayDate);
+    }
+
     const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
 
     // Count total matching
@@ -106,7 +114,9 @@ export async function getVisits(req, res) {
         v.status,
         v.notes,
         v.next_follow_up_date,
-        v.created_at
+        v.created_at,
+        v.lat,
+        v.long
       FROM visits v
       JOIN team_members m ON v.member_id = m.id
       ${whereSql}
@@ -174,7 +184,10 @@ export async function createVisit(req, res) {
       visit_date,
       status,
       notes,
-      next_follow_up_date
+      next_follow_up_date,
+      photo_data,
+      lat,
+      long
     } = req.body;
 
     if (!member_id) {
@@ -209,8 +222,11 @@ export async function createVisit(req, res) {
         visit_date,
         status,
         notes,
-        next_follow_up_date
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        next_follow_up_date,
+        photo_data,
+        lat,
+        long
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       Number(member_id),
       customer_name.trim(),
@@ -220,7 +236,10 @@ export async function createVisit(req, res) {
       visit_date,
       status,
       notes ? notes.trim() : '',
-      next_follow_up_date || null
+      next_follow_up_date || null,
+      photo_data || null,
+      lat || null,
+      long || null
     );
 
     const newId = Number(result.lastInsertRowid);
@@ -250,11 +269,14 @@ export async function updateVisit(req, res) {
       visit_date,
       status,
       notes,
-      next_follow_up_date
+      next_follow_up_date,
+      photo_data,
+      lat,
+      long
     } = req.body;
 
     // Check ownership or admin
-    const existing = await db.prepare('SELECT member_id FROM visits WHERE id = ?').get(Number(id));
+    const existing = await db.prepare('SELECT member_id, photo_data, lat, long FROM visits WHERE id = ?').get(Number(id));
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Record not found' });
     }
@@ -277,6 +299,9 @@ export async function updateVisit(req, res) {
         status = ?,
         notes = ?,
         next_follow_up_date = ?,
+        photo_data = ?,
+        lat = ?,
+        long = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
@@ -289,6 +314,9 @@ export async function updateVisit(req, res) {
       status,
       notes ? notes.trim() : '',
       next_follow_up_date || null,
+      photo_data !== undefined ? photo_data : existing.photo_data,
+      lat !== undefined ? lat : existing.lat,
+      long !== undefined ? long : existing.long,
       Number(id)
     );
 
@@ -326,6 +354,29 @@ export async function deleteVisit(req, res) {
     res.json({ success: true, message: 'Visit record deleted successfully' });
   } catch (error) {
     console.error('Error in deleteVisit:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+export async function searchCustomerByPhone(req, res) {
+  try {
+    const { phone } = req.query;
+    if (!phone || phone.length < 5) {
+      return res.json({ success: true, data: null });
+    }
+
+    // Search for latest visit by this phone number to auto-fill details
+    const existing = await db.prepare(`
+      SELECT customer_name, site_name, address
+      FROM visits
+      WHERE phone_number LIKE ?
+      ORDER BY id DESC
+      LIMIT 1
+    `).get(`%${phone.trim()}%`);
+
+    res.json({ success: true, data: existing || null });
+  } catch (error) {
+    console.error('Error in searchCustomerByPhone:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }

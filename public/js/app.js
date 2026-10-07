@@ -5,14 +5,17 @@ let currentTab = 'entry';
 function switchTab(tabName) {
   const entryView = document.getElementById('viewEntry');
   const myVisitsView = document.getElementById('viewMyVisits');
+  const expensesView = document.getElementById('viewExpenses');
   const dashboardView = document.getElementById('viewDashboard');
 
   const navBtnEntry = document.getElementById('navBtnEntry');
   const navBtnMyVisits = document.getElementById('navBtnMyVisits');
+  const navBtnExpenses = document.getElementById('navBtnExpenses');
   const navBtnDashboard = document.getElementById('navBtnDashboard');
 
   const navBtnEntryMob = document.getElementById('navBtnEntryMob');
   const navBtnMyVisitsMob = document.getElementById('navBtnMyVisitsMob');
+  const navBtnExpensesMob = document.getElementById('navBtnExpensesMob');
   const navBtnDashboardMob = document.getElementById('navBtnDashboardMob');
 
   // AUTHENTICATION CHECKS
@@ -21,6 +24,12 @@ function switchTab(tabName) {
     // Preload officers in modal dropdown
     loadTeamDropdown(document.getElementById('modalOfficerSelect'));
     return;
+  }
+
+  if (tabName === 'expenses' && !api.getCurrentOfficer()) {
+      document.getElementById('officerLoginModal').classList.remove('hidden');
+      loadTeamDropdown(document.getElementById('modalOfficerSelect'));
+      return;
   }
 
   if (tabName === 'dashboard' && !api.isAdmin()) {
@@ -34,10 +43,11 @@ function switchTab(tabName) {
   // RESET VIEWS
   entryView.classList.add('hidden');
   myVisitsView.classList.add('hidden');
+  expensesView.classList.add('hidden');
   dashboardView.classList.add('hidden');
 
   // RESET BUTTONS
-  [navBtnEntry, navBtnMyVisits, navBtnDashboard, navBtnEntryMob, navBtnMyVisitsMob, navBtnDashboardMob].forEach(btn => {
+  [navBtnEntry, navBtnMyVisits, navBtnExpenses, navBtnDashboard, navBtnEntryMob, navBtnMyVisitsMob, navBtnExpensesMob, navBtnDashboardMob].forEach(btn => {
     if (btn) {
       btn.classList.remove('bg-primary-600', 'text-white');
       btn.classList.add('text-zinc-300', 'hover:text-white');
@@ -60,6 +70,14 @@ function switchTab(tabName) {
     navBtnMyVisitsMob?.classList.remove('text-zinc-300');
     if (window.fetchAndRenderMyVisits) fetchAndRenderMyVisits();
   }
+  else if (tabName === 'expenses') {
+    expensesView.classList.remove('hidden');
+    navBtnExpenses?.classList.add('bg-primary-600', 'text-white');
+    navBtnExpenses?.classList.remove('text-zinc-300');
+    navBtnExpensesMob?.classList.add('bg-primary-600', 'text-white');
+    navBtnExpensesMob?.classList.remove('text-zinc-300');
+    if (window.initExpenses) initExpenses();
+  }
   else if (tabName === 'dashboard') {
     dashboardView.classList.remove('hidden');
     navBtnDashboard?.classList.add('bg-primary-600', 'text-white');
@@ -68,12 +86,22 @@ function switchTab(tabName) {
     navBtnDashboardMob?.classList.remove('text-zinc-300');
     if (window.refreshDashboard) refreshDashboard();
   }
+
+  // Optionally update UI logic if context changes
+  updateUserUI();
 }
 
 // Update User UI (Current Officer, Admin Badge, Entry Default Match)
 function updateUserUI() {
   const currentOfficer = api.getCurrentOfficer();
   const isAdmin = api.isAdmin();
+
+  // Who did we log into most recently?
+  const lastLogged = localStorage.getItem('dtc_last_logged') || 'officer';
+
+  // If we are on dashboard tab, prioritize Admin UI, else use recent
+  const showAdminUI = isAdmin && (lastLogged === 'admin' || !currentOfficer || currentTab === 'dashboard');
+  const showOfficerUI = currentOfficer && !showAdminUI;
 
   const label = document.getElementById('currentOfficerLabel');
   const roleBadge = document.getElementById('roleBadge');
@@ -94,26 +122,27 @@ function updateUserUI() {
     }
   }
 
-  // Handle Photo logic (Officer > Admin)
-  if (currentOfficer && currentOfficer.photo) {
-    if (navUserPhoto) navUserPhoto.src = currentOfficer.photo;
-  } else if (isAdmin) {
+  // Handle Photo & Label logic based on priority
+  if (showAdminUI) {
     const adminPhoto = localStorage.getItem('dtc_admin_photo');
     if (adminPhoto && navUserPhoto) navUserPhoto.src = adminPhoto;
     else if (navUserPhoto) navUserPhoto.src = '/logo.png';
+
+    label.textContent = 'Administrator';
+  } else if (showOfficerUI) {
+    if (navUserPhoto) navUserPhoto.src = currentOfficer.photo || '/logo.png';
+    label.textContent = currentOfficer.name;
   } else {
     if (navUserPhoto) navUserPhoto.src = '/logo.png';
+    label.textContent = t('nav_officer_btn');
   }
 
+  // Always keep entry dropdown synced if officer exists, even if admin is displayed
   if (currentOfficer) {
-    label.textContent = currentOfficer.name;
-    // Auto sync entry dropdown to logged in officer
     const opt = document.getElementById('entryOfficer');
     if (opt && opt.value !== String(currentOfficer.id)) {
        opt.value = currentOfficer.id;
     }
-  } else {
-    label.textContent = t('nav_officer_btn');
   }
 }
 
@@ -175,6 +204,7 @@ document.getElementById('adminPinForm').addEventListener('submit', async (e) => 
   try {
     const res = await api.loginAdmin(pin);
     if (res.success) {
+      localStorage.setItem('dtc_last_logged', 'admin');
       closeAdminModal();
       document.getElementById('adminPinInput').value = '';
       showToast('Admin Access Granted');
@@ -205,6 +235,7 @@ document.getElementById('officerPinForm').addEventListener('submit', async (e) =
   try {
     const res = await api.loginOfficer(memberId, pin);
     if (res.success) {
+      localStorage.setItem('dtc_last_logged', 'officer');
       closeOfficerModal();
       document.getElementById('modalOfficerPin').value = '';
       showToast(`Welcome back, ${res.officer.name}`);
@@ -351,10 +382,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('navBtnEntry')?.addEventListener('click', () => switchTab('entry'));
   document.getElementById('navBtnMyVisits')?.addEventListener('click', () => switchTab('myVisits'));
+  document.getElementById('navBtnExpenses')?.addEventListener('click', () => switchTab('expenses'));
   document.getElementById('navBtnDashboard')?.addEventListener('click', () => switchTab('dashboard'));
 
   document.getElementById('navBtnEntryMob')?.addEventListener('click', () => switchTab('entry'));
   document.getElementById('navBtnMyVisitsMob')?.addEventListener('click', () => switchTab('myVisits'));
+  document.getElementById('navBtnExpensesMob')?.addEventListener('click', () => switchTab('expenses'));
   document.getElementById('navBtnDashboardMob')?.addEventListener('click', () => switchTab('dashboard'));
 
   document.getElementById('navBtnShare')?.addEventListener('click', () => {
@@ -383,6 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const hash = window.location.hash.replace('#', '');
   if (hash === 'entry') switchTab('entry');
   else if (hash === 'myVisits') switchTab('myVisits');
+  else if (hash === 'expenses') switchTab('expenses');
   else if (hash === 'dashboard') switchTab('dashboard');
   else switchTab('entry'); // Default to entry always
 });

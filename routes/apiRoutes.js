@@ -4,6 +4,7 @@ import * as teamController from '../controllers/teamController.js';
 import * as visitsController from '../controllers/visitsController.js';
 import * as analyticsController from '../controllers/analyticsController.js';
 import * as authController from '../controllers/authController.js';
+import * as expensesController from '../controllers/expensesController.js';
 
 const router = Router();
 
@@ -21,6 +22,7 @@ router.delete('/team/:id', teamController.deleteMember);
 
 // Visits endpoints
 router.get('/visits', visitsController.getVisits);
+router.get('/visits/search', visitsController.searchCustomerByPhone);
 router.post('/visits', visitsController.createVisit);
 router.get('/visits/:id', visitsController.getVisitById);
 router.put('/visits/:id', visitsController.updateVisit);
@@ -32,6 +34,12 @@ router.get('/export/csv', visitsController.exportCSV);
 // Analytics & Dashboard
 router.get('/dashboard/kpi', analyticsController.getDashboardKPI);
 router.get('/dashboard/charts', analyticsController.getChartsData);
+
+// Expenses endpoints
+router.get('/expenses', expensesController.getExpenses);
+router.post('/expenses', expensesController.createExpense);
+router.post('/expenses/:id/approve', expensesController.approveExpense);
+router.post('/expenses/:id/reject', expensesController.rejectExpense);
 
 // System Network info for mobile connectivity
 router.get('/info', (req, res) => {

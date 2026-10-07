@@ -50,6 +50,32 @@ async function refreshDashboard() {
       loadFilterOfficers(),
       fetchAndRenderVisits()
     ]);
+
+    // Global Follow-up Alerts
+    try {
+      const alertRes = await api.getVisits({ dueFollowUpOnly: 'true', limit: 6 });
+      const alertContainer = document.getElementById('globalFollowUpAlertContainer');
+      const alertList = document.getElementById('globalFollowUpAlertList');
+      if (alertRes.success && alertRes.data && alertRes.data.length > 0) {
+        alertContainer.classList.remove('hidden');
+        alertList.innerHTML = '';
+        alertRes.data.forEach(v => {
+          alertList.innerHTML += `
+            <div class="bg-amber-950/40 border border-amber-900/50 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:bg-amber-950/60 transition-colors" onclick="openViewVisitModal(${v.id})">
+              <div>
+                <div class="font-bold text-white text-sm">${escapeHtml(v.customer_name)} <span class="text-xs font-normal text-amber-500 bg-amber-950/50 px-1.5 py-0.5 rounded ml-1">${v.next_follow_up_date}</span></div>
+                <div class="text-[10px] text-zinc-400 capitalize mt-0.5"><span class="text-cyan-400 font-bold">${escapeHtml(v.member_name)}</span> • ${escapeHtml(v.phone_number)}</div>
+              </div>
+              <a href="tel:${escapeHtml(v.phone_number)}" class="w-8 h-8 rounded bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0" onclick="event.stopPropagation()">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+              </a>
+            </div>
+          `;
+        });
+      } else {
+        alertContainer.classList.add('hidden');
+      }
+    } catch(e) {}
   }
 }
 
@@ -68,6 +94,32 @@ async function fetchAndRenderMyVisits() {
       document.getElementById('myKpiToday').textContent = kpiRes.data.visitsToday || 0;
       document.getElementById('myKpiMonth').textContent = kpiRes.data.visitsThisMonth || 0;
       document.getElementById('myKpiFollowup').textContent = kpiRes.data.pendingFollowUps || 0;
+    }
+  } catch(e) {}
+
+  // 1.5 Fetch pending follow ups (Due today or earlier)
+  try {
+    const alertRes = await api.getVisits({ memberId: officer.id, dueFollowUpOnly: 'true', limit: 5 });
+    const alertContainer = document.getElementById('myFollowUpAlertContainer');
+    const alertList = document.getElementById('myFollowUpAlertList');
+    if (alertRes.success && alertRes.data && alertRes.data.length > 0) {
+      alertContainer.classList.remove('hidden');
+      alertList.innerHTML = '';
+      alertRes.data.forEach(v => {
+        alertList.innerHTML += `
+          <div class="bg-amber-950/40 border border-amber-900/50 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:bg-amber-950/60 transition-colors" onclick="openViewVisitModal(${v.id})">
+            <div>
+              <div class="font-bold text-white text-sm">${escapeHtml(v.customer_name)} <span class="text-xs font-normal text-amber-500 bg-amber-950/50 px-1.5 py-0.5 rounded ml-1">${v.next_follow_up_date}</span></div>
+              <div class="text-xs text-amber-200">${escapeHtml(v.phone_number)}</div>
+            </div>
+            <a href="tel:${escapeHtml(v.phone_number)}" class="w-8 h-8 rounded bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0" onclick="event.stopPropagation()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            </a>
+          </div>
+        `;
+      });
+    } else {
+      alertContainer.classList.add('hidden');
     }
   } catch(e) {}
 
@@ -106,7 +158,7 @@ async function fetchAndRenderMyVisits() {
       tr.innerHTML = `
         <td class="py-3 px-3 font-semibold text-zinc-200 whitespace-nowrap">${v.visit_date}</td>
         <td class="py-3 px-3">
-          <div class="font-bold text-white">${escapeHtml(v.customer_name)}</div>
+          <div class="font-bold text-white cursor-pointer hover:text-primary-400 select-none" onclick="openViewVisitModal(${v.id})">${escapeHtml(v.customer_name)}</div>
           <div class="text-xs text-zinc-400 font-medium">${escapeHtml(v.site_name)}</div>
         </td>
         <td class="py-3 px-3">
@@ -453,7 +505,7 @@ async function fetchAndRenderVisits() {
           <div class="text-[11px] text-zinc-400 capitalize">${escapeHtml(v.member_role || '')}</div>
         </td>
         <td class="py-3 px-3">
-          <div class="font-bold text-zinc-200">${escapeHtml(v.customer_name)}</div>
+          <div class="font-bold text-zinc-200 cursor-pointer hover:text-cyan-400 select-none" onclick="openViewVisitModal(${v.id})">${escapeHtml(v.customer_name)}</div>
           <div class="text-xs text-primary-400 font-medium">${escapeHtml(v.site_name)}</div>
         </td>
         <td class="py-3 px-3">
@@ -557,6 +609,14 @@ async function openEditModal(visitId) {
     document.getElementById('editNotes').value = v.notes || '';
     document.getElementById('editFollowUp').value = v.next_follow_up_date || '';
 
+    // Handle Photo View/Edit
+    const photoDataEl = document.getElementById('editPhotoData');
+    const photoImgEl = document.getElementById('editPhotoPreview');
+    if (photoDataEl && photoImgEl) {
+       photoImgEl.src = v.photo_data || '/logo.png';
+       photoDataEl.value = ''; // Don't prefill hidden value so we know when it changes
+    }
+
     await loadTeamDropdown(document.getElementById('editOfficer'), v.member_id);
     document.getElementById('editModal').classList.remove('hidden');
   } catch (err) {}
@@ -566,6 +626,8 @@ function closeEditModal() { document.getElementById('editModal').classList.add('
 async function handleSaveEdit(e) {
   e.preventDefault();
   const id = document.getElementById('editVisitId').value;
+  const photoData = document.getElementById('editPhotoData')?.value;
+
   const payload = {
     member_id: Number(document.getElementById('editOfficer').value),
     customer_name: document.getElementById('editCustomer').value.trim(),
@@ -577,6 +639,9 @@ async function handleSaveEdit(e) {
     notes: document.getElementById('editNotes').value.trim(),
     next_follow_up_date: document.getElementById('editFollowUp').value || null
   };
+
+  if (photoData) payload.photo_data = photoData;
+
   try {
     const res = await api.updateVisit(id, payload);
     if (res.success) {
@@ -626,3 +691,131 @@ window.handleSaveEdit = handleSaveEdit;
 window.confirmDeleteVisit = confirmDeleteVisit;
 window.closeDeleteModal = closeDeleteModal;
 window.executeDeleteVisit = executeDeleteVisit;
+
+// View Details Modal Logic
+async function openViewVisitModal(visitId) {
+  try {
+    const res = await api.getVisitById(visitId);
+    if (!res.success) return;
+    const v = res.data;
+
+    const statusClass = {
+      'Interested': 'text-emerald-400 bg-emerald-950 border-emerald-800',
+      'Follow-up': 'text-amber-400 bg-amber-950 border-amber-800',
+      'Need Quotation': 'text-blue-400 bg-blue-950 border-blue-800',
+      'Closed/Won': 'text-purple-400 bg-purple-950 border-purple-800',
+      'Not Interested': 'text-zinc-400 bg-zinc-800 border-zinc-700'
+    }[v.status] || 'text-zinc-400 bg-zinc-800 border-zinc-700';
+
+    const statusEl = document.getElementById('viewVisitStatus');
+    statusEl.textContent = v.status;
+    statusEl.className = `px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusClass}`;
+
+    document.getElementById('viewVisitDate').textContent = `📅 ${v.visit_date}`;
+    document.getElementById('viewVisitCustomer').textContent = v.customer_name;
+    document.getElementById('viewVisitSite').textContent = v.site_name;
+    document.getElementById('viewVisitAddress').textContent = v.address;
+
+    const locContainer = document.getElementById('viewLocationContainer');
+    const locLink = document.getElementById('viewLocationLink');
+    if (v.lat && v.long) {
+        locLink.href = `https://www.google.com/maps?q=${v.lat},${v.long}`;
+        locContainer.classList.remove('hidden');
+    } else {
+        locContainer.classList.add('hidden');
+    }
+
+    const phoneEl = document.getElementById('viewVisitPhone');
+    phoneEl.textContent = v.phone_number;
+    phoneEl.href = `tel:${v.phone_number}`;
+
+    document.getElementById('viewVisitOfficer').textContent = v.member_name || (v.member_id ? 'ID: ' + v.member_id : 'Unknown');
+    document.getElementById('viewVisitFollowup').textContent = v.next_follow_up_date || 'N/A';
+    document.getElementById('viewVisitNotes').textContent = v.notes || 'কোনো মন্তব্য নেই';
+
+    const photoContainer = document.getElementById('viewVisitPhotoContainer');
+    const photoImg = document.getElementById('viewVisitPhoto');
+    if (v.photo_data) {
+      photoImg.src = v.photo_data;
+      photoContainer.classList.remove('hidden');
+    } else {
+      photoImg.src = '';
+      photoContainer.classList.add('hidden');
+    }
+
+    document.getElementById('viewVisitModal').classList.remove('hidden');
+  } catch (err) {
+    console.error('Error opening details:', err);
+  }
+}
+function closeViewVisitModal() { document.getElementById('viewVisitModal').classList.add('hidden'); }
+
+// Toggle between Table and Kanban view
+function toggleView(viewType) {
+    const tableView = document.getElementById('tableView');
+    const kanbanView = document.getElementById('kanbanView');
+
+    if (viewType === 'kanban') {
+        tableView.classList.add('hidden');
+        kanbanView.classList.remove('hidden');
+        renderKanban();
+    } else {
+        kanbanView.classList.remove('hidden');
+        tableView.classList.remove('hidden');
+    }
+}
+
+async function renderKanban() {
+    const columnContainer = document.getElementById('kanbanColumns');
+    const statuses = ['Interested', 'Follow-up', 'Need Quotation', 'Closed/Won', 'Not Interested'];
+
+    // Fetch all needed data
+    const res = await api.getVisits({ ...currentFilters, limit: 1000 });
+    const visits = res.success ? res.data : [];
+
+    columnContainer.innerHTML = statuses.map(status => {
+        const filteredVisits = visits.filter(v => v.status === status);
+        return `
+            <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800 flex flex-col h-[500px]">
+                <h4 class="font-bold text-xs text-zinc-400 uppercase mb-3">${status} (${filteredVisits.length})</h4>
+                <div class="flex-1 overflow-y-auto space-y-2" ondrop="drop(event, '${status}')" ondragover="allowDrop(event)">
+                    ${filteredVisits.map(v => `
+                        <div draggable="true" ondragstart="drag(event, ${v.id})" class="bg-zinc-900 p-3 rounded-lg border border-zinc-700 cursor-grab hover:border-primary-500">
+                            <div class="font-bold text-sm text-white">${escapeHtml(v.customer_name)}</div>
+                            <div class="text-xs text-primary-400">${escapeHtml(v.site_name)}</div>
+                            <div class="text-[10px] text-zinc-500 mt-1">${v.visit_date}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function allowDrop(ev) { ev.preventDefault(); }
+function drag(ev, id) { ev.dataTransfer.setData("visitId", id); }
+
+async function drop(ev, newStatus) {
+    ev.preventDefault();
+    const visitId = ev.dataTransfer.getData("visitId");
+
+    try {
+        const resVisit = await api.getVisitById(visitId);
+        if(resVisit.success) {
+            const payload = { ...resVisit.data, status: newStatus };
+            await api.updateVisit(visitId, payload);
+            renderKanban();
+            showToast('স্ট্যাটাস আপডেট হয়েছে!');
+        }
+    } catch(err) {
+        alert('আপডেট ব্যর্থ হয়েছে');
+    }
+}
+
+window.openViewVisitModal = openViewVisitModal;
+window.closeViewVisitModal = closeViewVisitModal;
+window.toggleView = toggleView;
+window.renderKanban = renderKanban;
+window.allowDrop = allowDrop;
+window.drag = drag;
+window.drop = drop;
