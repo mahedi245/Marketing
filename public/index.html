@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -55,74 +55,111 @@
 
   <link rel="stylesheet" href="/css/custom.css">
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-primary-600 selection:text-white">
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-primary-600 selection:text-white overflow-x-hidden max-w-full">
 
-  <!-- Top Navigation Bar (Red & Black) -->
-  <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-30 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+  <!-- Top Navigation Bar (Red & Black & Fully Mobile Responsive) -->
+  <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-30 shadow-md w-full overflow-x-hidden">
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+
+      <!-- Top Row -->
+      <div class="flex items-center justify-between h-14 sm:h-16 gap-1">
 
         <!-- Logo & Title -->
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="handleLogoClick()">
-          <img src="/logo.png" alt="DTC Logo" class="w-10 h-10 object-contain rounded-xl shadow-md bg-white border border-zinc-200 p-1">
-          <div>
-            <div class="flex items-center space-x-1.5">
-              <h1 class="font-extrabold text-base sm:text-lg tracking-wide text-white leading-tight">DTC <span class="text-primary-500">Marketing</span></h1>
-              <span id="roleBadge" class="hidden text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-800/60 text-blue-300 border border-primary-700/60">Admin</span>
+        <div class="flex items-center space-x-1 sm:space-x-3 cursor-pointer shrink-0" onclick="handleLogoClick()">
+          <img src="/logo.png" alt="DTC Logo" class="w-7 h-7 sm:w-10 sm:h-10 object-contain rounded-lg sm:rounded-xl shadow-md bg-white border border-zinc-200 p-0.5 sm:p-1">
+          <div class="shrink-0">
+            <div class="flex items-center space-x-1">
+              <h1 class="font-extrabold text-[11px] sm:text-lg tracking-wide text-white leading-tight">DTC <span class="hidden min-[360px]:inline text-primary-500">Marketing</span></h1>
+              <span id="roleBadge" class="hidden text-[8px] sm:text-[9px] uppercase font-bold px-1 py-0.5 rounded bg-slate-800/60 text-blue-300 border border-primary-700/60">Admin</span>
             </div>
-            <p class="text-[11px] text-zinc-400 hidden sm:block" data-i18n="app_subtitle">ফিল্ড ভিজিট ও কাস্টমার লিড ম্যানেজমেন্ট</p>
+            <p class="text-[10px] sm:text-[11px] text-zinc-400 hidden lg:block" data-i18n="app_subtitle">ফিল্ড ভিজিট ও কাস্টমার লিড ম্যানেজমেন্ট</p>
           </div>
         </div>
 
-        <!-- Right Action Items -->
-        <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Desktop Navigation Tabs -->
+        <div class="hidden md:flex bg-zinc-950 p-1 rounded-xl text-xs sm:text-sm font-semibold border border-zinc-800">
+          <button id="navBtnEntry" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            <span data-i18n="nav_entry">দ্রুত এন্ট্রি</span>
+          </button>
+          <button id="navBtnMyVisits" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <span data-i18n="nav_my_visits">আমার ভিজিট</span>
+          </button>
+          <button id="navBtnDashboard" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
+            <svg id="dashboardLockIcon" class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <span data-i18n="nav_dashboard">অ্যাডমিন</span>
+          </button>
+        </div>
 
-          <!-- View Switchers -->
-          <div class="flex bg-zinc-950 p-1 rounded-xl text-xs sm:text-sm font-semibold border border-zinc-800">
-            <!-- Quick Entry Tab -->
-            <button id="navBtnEntry" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-              <span data-i18n="nav_entry">দ্রুত এন্ট্রি</span>
-            </button>
-
-            <!-- My Visits Tab (Only personal entries) -->
-            <button id="navBtnMyVisits" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-              <span data-i18n="nav_my_visits">আমার ভিজিট</span>
-            </button>
-
-            <!-- Admin Dashboard Tab (Protected by Admin PIN) -->
-            <button id="navBtnDashboard" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
-              <svg id="dashboardLockIcon" class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-              <span data-i18n="nav_dashboard">অ্যাডমিন</span>
-            </button>
-          </div>
+        <!-- Right Action Items (Desktop Side Actions + Mobile User Profile Button) -->
+        <div class="flex items-center space-x-2">
 
           <!-- Current User Pill & Switch -->
-          <button id="btnSwitchUser" class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-colors" title="Change Officer / Login">
-            <span id="currentOfficerLabel" class="truncate max-w-[100px] sm:max-w-[140px]">অফিসার</span>
+          <button id="btnSwitchUser" class="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-colors max-w-[120px] sm:max-w-[160px]" title="Change Officer / Login">
+            <span id="currentOfficerLabel" class="truncate">অফিসার</span>
             <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
           </button>
 
-          <!-- Change Officer PIN Button -->
-          <button onclick="openChangeOfficerPinModal()" class="p-2 sm:px-2.5 sm:py-1.5 text-zinc-300 hover:text-amber-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-semibold flex items-center space-x-1 transition-colors" title="Change PIN / পিন পরিবর্তন">
-            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z"></path></svg>
-            <span class="hidden sm:inline">পিন পরিবর্তন</span>
+          <!-- Desktop Only Quick Action Buttons -->
+          <button onclick="openChangeOfficerPinModal()" class="hidden md:flex p-2 sm:px-2.5 sm:py-1.5 text-zinc-300 hover:text-amber-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs font-semibold items-center space-x-1 transition-colors" title="Change PIN / পিন পরিবর্তন">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z"></path></svg>
+            <span>পিন</span>
           </button>
 
-          <!-- Theme Switcher -->
-          <button onclick="openThemeConfigModal()" class="p-2 sm:px-3 sm:py-1.5 text-zinc-300 hover:text-primary-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-colors" title="Theme Color">
+          <button onclick="openThemeConfigModal()" class="hidden md:flex p-2 sm:px-3 sm:py-1.5 text-zinc-300 hover:text-primary-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-xl text-xs sm:text-sm font-semibold items-center space-x-1.5 transition-colors" title="Theme Color">
             <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
             <span class="hidden lg:inline">থিম</span>
           </button>
 
-          <!-- Language Switcher -->
-          <button id="langToggleBtn" class="px-2.5 py-1.5 bg-slate-900/60 hover:bg-slate-800/80 text-blue-300 border border-primary-800 rounded-xl text-xs font-bold transition-all">
-            English
+          <button id="langToggleBtn" class="hidden md:flex px-2.5 py-1.5 bg-slate-900/60 hover:bg-slate-800/80 text-blue-300 border border-primary-800 rounded-xl text-xs font-bold transition-all">
+            EN
           </button>
 
         </div>
       </div>
+
+      <!-- Mobile Navigation Sub-Bar (Tabs & Quick Settings Bar) -->
+      <div class="block md:hidden pb-2.5 space-y-2">
+
+        <!-- Mobile Main Navigation Tabs -->
+        <div class="bg-zinc-950 p-1 rounded-xl text-xs font-bold border border-zinc-800 grid grid-cols-3 gap-1 text-center">
+          <button id="navBtnEntryMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            <span data-i18n="nav_entry">দ্রুত এন্ট্রি</span>
+          </button>
+          <button id="navBtnMyVisitsMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <span data-i18n="nav_my_visits">আমার ভিজিট</span>
+          </button>
+          <button id="navBtnDashboardMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
+            <svg id="dashboardLockIconMob" class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <span data-i18n="nav_dashboard">অ্যাডমিন</span>
+          </button>
+        </div>
+
+        <!-- Mobile Quick Settings Row (Pin, Theme, Lang) -->
+        <div class="flex items-center justify-between bg-zinc-950/70 p-1.5 px-3 rounded-xl border border-zinc-800 text-xs font-semibold">
+          <!-- Change PIN -->
+          <button onclick="openChangeOfficerPinModal()" class="flex items-center space-x-1 text-amber-400 hover:text-amber-300">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 0121 9z"></path></svg>
+            <span>পিন পরিবর্তন</span>
+          </button>
+
+          <!-- Theme -->
+          <button onclick="openThemeConfigModal()" class="flex items-center space-x-1 text-primary-400 hover:text-primary-300">
+            <svg class="w-3.5 h-3.5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+            <span>থিম কালার</span>
+          </button>
+
+          <!-- Language Mobile -->
+          <button id="langToggleBtnMob" class="text-blue-300 font-bold px-2 py-0.5 rounded bg-slate-900 border border-primary-800 text-[11px]">
+            EN
+          </button>
+        </div>
+
+      </div>
+
     </div>
   </header>
 
@@ -263,16 +300,16 @@
     <div id="viewMyVisits" class="animate-fade-in space-y-6 hidden">
 
       <!-- Header Banner -->
-      <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="bg-zinc-900 p-4 sm:p-5 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div class="flex items-center space-x-2">
-            <span class="w-3 h-3 rounded-full bg-primary-500 inline-block"></span>
+            <span class="w-3 h-3 rounded-full bg-primary-500 inline-block shrink-0"></span>
             <h2 class="text-lg sm:text-xl font-black text-white" data-i18n="my_visits_title">আমার এন্ট্রি করা ভিজিটসমূহ</h2>
           </div>
           <p class="text-xs text-zinc-400 mt-1" data-i18n="my_visits_subtitle">আপনার ব্যক্তিগত কাস্টমার ভিজিট হিস্ট্রি (শুধুমাত্র আপনি দেখতে পাবেন)</p>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button onclick="switchTab('entry')" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center space-x-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             <span data-i18n="nav_entry">নতুন এন্ট্রি</span>
@@ -359,7 +396,7 @@
           </div>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex flex-wrap items-center gap-2">
           <!-- Team Management -->
           <button onclick="openTeamModal()" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 rounded-xl text-xs font-bold flex items-center space-x-1.5">
             <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>

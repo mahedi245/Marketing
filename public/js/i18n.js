@@ -257,6 +257,10 @@ function updateDOMTranslations() {
   if (langBtn) {
     langBtn.textContent = t('lang_btn');
   }
+  const langBtnMob = document.getElementById('langToggleBtnMob');
+  if (langBtnMob) {
+    langBtnMob.textContent = t('lang_btn');
+  }
 
   window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: currentLang } }));
 }

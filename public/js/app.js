@@ -11,6 +11,10 @@ function switchTab(tabName) {
   const navBtnMyVisits = document.getElementById('navBtnMyVisits');
   const navBtnDashboard = document.getElementById('navBtnDashboard');
 
+  const navBtnEntryMob = document.getElementById('navBtnEntryMob');
+  const navBtnMyVisitsMob = document.getElementById('navBtnMyVisitsMob');
+  const navBtnDashboardMob = document.getElementById('navBtnDashboardMob');
+
   // AUTHENTICATION CHECKS
   if (tabName === 'myVisits' && !api.getCurrentOfficer()) {
     document.getElementById('officerLoginModal').classList.remove('hidden');
@@ -33,27 +37,35 @@ function switchTab(tabName) {
   dashboardView.classList.add('hidden');
 
   // RESET BUTTONS
-  [navBtnEntry, navBtnMyVisits, navBtnDashboard].forEach(btn => {
-    btn.classList.remove('bg-primary-600', 'text-white');
-    btn.classList.add('text-zinc-300', 'hover:text-white');
+  [navBtnEntry, navBtnMyVisits, navBtnDashboard, navBtnEntryMob, navBtnMyVisitsMob, navBtnDashboardMob].forEach(btn => {
+    if (btn) {
+      btn.classList.remove('bg-primary-600', 'text-white');
+      btn.classList.add('text-zinc-300', 'hover:text-white');
+    }
   });
 
   // ACTIVATE SELECTED
   if (tabName === 'entry') {
     entryView.classList.remove('hidden');
-    navBtnEntry.classList.add('bg-primary-600', 'text-white');
-    navBtnEntry.classList.remove('text-zinc-300');
+    navBtnEntry?.classList.add('bg-primary-600', 'text-white');
+    navBtnEntry?.classList.remove('text-zinc-300');
+    navBtnEntryMob?.classList.add('bg-primary-600', 'text-white');
+    navBtnEntryMob?.classList.remove('text-zinc-300');
   }
   else if (tabName === 'myVisits') {
     myVisitsView.classList.remove('hidden');
-    navBtnMyVisits.classList.add('bg-primary-600', 'text-white');
-    navBtnMyVisits.classList.remove('text-zinc-300');
+    navBtnMyVisits?.classList.add('bg-primary-600', 'text-white');
+    navBtnMyVisits?.classList.remove('text-zinc-300');
+    navBtnMyVisitsMob?.classList.add('bg-primary-600', 'text-white');
+    navBtnMyVisitsMob?.classList.remove('text-zinc-300');
     if (window.fetchAndRenderMyVisits) fetchAndRenderMyVisits();
   }
   else if (tabName === 'dashboard') {
     dashboardView.classList.remove('hidden');
-    navBtnDashboard.classList.add('bg-primary-600', 'text-white');
-    navBtnDashboard.classList.remove('text-zinc-300');
+    navBtnDashboard?.classList.add('bg-primary-600', 'text-white');
+    navBtnDashboard?.classList.remove('text-zinc-300');
+    navBtnDashboardMob?.classList.add('bg-primary-600', 'text-white');
+    navBtnDashboardMob?.classList.remove('text-zinc-300');
     if (window.refreshDashboard) refreshDashboard();
   }
 }
@@ -244,10 +256,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const langToggleBtn = document.getElementById('langToggleBtn');
   if (langToggleBtn) langToggleBtn.addEventListener('click', toggleLanguage);
+  const langToggleBtnMob = document.getElementById('langToggleBtnMob');
+  if (langToggleBtnMob) langToggleBtnMob.addEventListener('click', toggleLanguage);
 
   document.getElementById('navBtnEntry')?.addEventListener('click', () => switchTab('entry'));
   document.getElementById('navBtnMyVisits')?.addEventListener('click', () => switchTab('myVisits'));
   document.getElementById('navBtnDashboard')?.addEventListener('click', () => switchTab('dashboard'));
+
+  document.getElementById('navBtnEntryMob')?.addEventListener('click', () => switchTab('entry'));
+  document.getElementById('navBtnMyVisitsMob')?.addEventListener('click', () => switchTab('myVisits'));
+  document.getElementById('navBtnDashboardMob')?.addEventListener('click', () => switchTab('dashboard'));
 
   document.getElementById('navBtnShare')?.addEventListener('click', () => {
       if(typeof openShareModal === 'function') openShareModal();
