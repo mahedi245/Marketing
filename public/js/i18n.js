@@ -24,7 +24,7 @@ const translations = {
     // Admin Auth
     admin_login_title: "Main Admin Security Lock",
     admin_login_subtitle: "Only authorized administrators can view all entries",
-    admin_pin_placeholder: "Enter Admin PIN (default: 8888)",
+    admin_pin_placeholder: "Enter Admin PIN",
     btn_admin_unlock: "Unlock Full Dashboard",
     admin_active_badge: "Admin Mode Active",
 
@@ -134,7 +134,7 @@ const translations = {
     // Admin Auth
     admin_login_title: "মেইন অ্যাডমিন নিরাপত্তা লক",
     admin_login_subtitle: "শুধুমাত্র অনুমোদিত অ্যাডমিন সবার ভিজিট দেখতে পাবেন",
-    admin_pin_placeholder: "অ্যাডমিন পিন দিন (ডিফল্ট: 8888)",
+    admin_pin_placeholder: "অ্যাডমিন পিন দিন",
     btn_admin_unlock: "ড্যাশবোর্ড আনলক করুন",
     admin_active_badge: "অ্যাডমিন মোড সক্রিয়",
 

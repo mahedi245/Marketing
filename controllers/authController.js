@@ -51,7 +51,7 @@ export async function adminLogin(req, res) {
     }
 
     const row = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_pin'").get();
-    const currentAdminPin = row ? row.value : '8888';
+    const currentAdminPin = row ? row.value : '25800';
 
     if (String(adminPin).trim() !== String(currentAdminPin).trim()) {
       return res.status(401).json({ success: false, error: 'Incorrect Admin PIN' });
@@ -77,7 +77,7 @@ export async function changeAdminPin(req, res) {
     }
 
     const row = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_pin'").get();
-    const currentAdminPin = row ? row.value : '8888';
+    const currentAdminPin = row ? row.value : '25800';
 
     if (String(oldPin).trim() !== String(currentAdminPin).trim()) {
       return res.status(401).json({ success: false, error: 'Current Admin PIN is incorrect' });

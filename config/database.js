@@ -133,10 +133,10 @@ export async function initDatabase() {
     );
   `);
 
-  // Seed default admin PIN (default: '8888')
+  // Seed default admin PIN
   const getAdminPin = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_pin'").get();
   if (!getAdminPin) {
-    await db.prepare("INSERT INTO app_settings (key, value) VALUES ('admin_pin', '8888')").run();
+    await db.prepare("INSERT INTO app_settings (key, value) VALUES ('admin_pin', '25800')").run();
   }
 
   // Indexes for query performance
