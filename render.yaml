@@ -6,6 +6,6 @@ services:
     startCommand: npm start
     envVars:
       - key: TURSO_DATABASE_URL
-        sync: false
+        value: libsql://marketing-mahedi245.aws-ap-south-1.turso.io
       - key: TURSO_AUTH_TOKEN
-        sync: false
+        value: eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTEzNDExMDEsImlkIjoiMDFhMTE0M2YtNmQwMS03NjNmLWIwMGItZjJiN2M3OGVhYjQyIiwia2lkIjoiTkZWanc1ZXB6TUNQQ2NRN3RjZE5IQktnaklXb0NOS2RQNExXZXkwVEVtWSIsInJpZCI6IjU5M2Y4YmY5LTI4YWUtNGMzMS05N2UwLTNjM2M2ODExYWIzNyJ9.9rvN_IATu_X0zXtQuDNQCC1hA3FoGTwc3jH2E4qjmPP5iCxkXl_-Ax8dD5wzZ0_r_TCFFMSrFuCsr8Og1kEOAw
