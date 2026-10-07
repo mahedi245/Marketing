@@ -1,0 +1,126 @@
+/* DTC Marketing - Red & Black Theme */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --dtc-blue-primary: #2563eb;
+  --dtc-red-dark: #991b1b;
+  --dtc-red-light: #f87171;
+  --dtc-black-bg: #09090b;
+  --dtc-black-surface: #121215;
+  --dtc-black-card: #18181b;
+  --dtc-black-border: #27272a;
+}
+
+body {
+  font-family: 'Inter', 'Hind+Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #0c0a09;
+  color: #f4f4f5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbars - Red and Black */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #18181b;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Red Glow Effects */
+.theme-glow {
+  box-shadow: 0 0 25px -5px var(--theme-500);
+}
+.theme-glow-sm {
+  box-shadow: 0 0 15px -3px var(--theme-600);
+}
+
+/* Status Badges on Dark Background */
+.badge-interested {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.badge-follow-up {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.badge-need-quotation {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+.badge-closed-won {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+.badge-not-interested {
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Touch Buttons */
+.status-chip {
+  transition: all 0.18s ease;
+}
+.status-chip:active {
+  transform: scale(0.97);
+}
+
+/* Card glass effect on deep black */
+.dark-card {
+  background-color: #18181b;
+  border: 1px solid #27272a;
+}
+.dark-card-hover:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 20px -2px rgba(37, 99, 235, 0.15);
+}
+
+/* Red accents */
+.text-dtc-blue {
+  color: #ef4444;
+}
+.bg-dtc-blue {
+  background-color: #2563eb;
+}
+.border-dtc-blue {
+  border-color: #2563eb;
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
