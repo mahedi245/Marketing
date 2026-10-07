@@ -78,6 +78,7 @@ function updateUserUI() {
   const label = document.getElementById('currentOfficerLabel');
   const roleBadge = document.getElementById('roleBadge');
   const lockIcon = document.getElementById('dashboardLockIcon');
+  const navUserPhoto = document.getElementById('navUserPhoto');
 
   if (isAdmin) {
     roleBadge.classList.remove('hidden');
@@ -93,6 +94,17 @@ function updateUserUI() {
     }
   }
 
+  // Handle Photo logic (Officer > Admin)
+  if (currentOfficer && currentOfficer.photo) {
+    if (navUserPhoto) navUserPhoto.src = currentOfficer.photo;
+  } else if (isAdmin) {
+    const adminPhoto = localStorage.getItem('dtc_admin_photo');
+    if (adminPhoto && navUserPhoto) navUserPhoto.src = adminPhoto;
+    else if (navUserPhoto) navUserPhoto.src = '/logo.png';
+  } else {
+    if (navUserPhoto) navUserPhoto.src = '/logo.png';
+  }
+
   if (currentOfficer) {
     label.textContent = currentOfficer.name;
     // Auto sync entry dropdown to logged in officer
@@ -104,6 +116,48 @@ function updateUserUI() {
     label.textContent = t('nav_officer_btn');
   }
 }
+
+// Global Image Resizer & Preview utility
+window.previewImage = function(event, imgId, hiddenInputId) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 256;
+      const MAX_HEIGHT = 256;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Compress slightly to keep payload small
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      document.getElementById(imgId).src = dataUrl;
+      document.getElementById(hiddenInputId).value = dataUrl;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
 
 // Header Actions
 document.getElementById('btnSwitchUser').addEventListener('click', () => {
@@ -182,7 +236,7 @@ function closeOfficerModal() { document.getElementById('officerLoginModal').clas
 function openChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.remove('hidden'); }
 function closeChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.add('hidden'); }
 
-// Change Officer PIN
+// Change Officer PIN & Profile
 function openChangeOfficerPinModal() {
   document.getElementById('changeOfficerPinModal').classList.remove('hidden');
   const select = document.getElementById('changePinOfficerSelect');
@@ -192,15 +246,26 @@ function openChangeOfficerPinModal() {
   const currentOfficer = api.getCurrentOfficer();
   if (currentOfficer && select) {
     select.value = currentOfficer.id;
+    if (currentOfficer.photo) {
+      document.getElementById('officerProfilePreview').src = currentOfficer.photo;
+    } else {
+      document.getElementById('officerProfilePreview').src = '/logo.png';
+    }
   }
 }
-function closeChangeOfficerPinModal() { document.getElementById('changeOfficerPinModal').classList.add('hidden'); }
+function closeChangeOfficerPinModal() {
+  document.getElementById('changeOfficerPinModal').classList.add('hidden');
+  // Reset photo form state
+  document.getElementById('officerProfilePreview').src = '/logo.png';
+  document.getElementById('officerPhotoData').value = '';
+}
 
 document.getElementById('changeOfficerPinForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const memberId = document.getElementById('changePinOfficerSelect').value;
   const oldPin = document.getElementById('currentOfficerPinInput').value;
   const newPin = document.getElementById('newOfficerPinInput').value;
+  const photoData = document.getElementById('officerPhotoData').value;
 
   if (!memberId) {
     alert('অনুগ্রহ করে কর্মকর্তা সিলেক্ট করুন');
@@ -208,13 +273,19 @@ document.getElementById('changeOfficerPinForm')?.addEventListener('submit', asyn
   }
 
   try {
-    const res = await api.changeOfficerPin(memberId, oldPin, newPin);
+    const res = await api.changeOfficerPin(memberId, oldPin, newPin, photoData || undefined);
     if (res.success) {
       closeChangeOfficerPinModal();
-      showToast('পিন সফলভাবে পরিবর্তন হয়েছে');
+      showToast('প্রোফাইল সফলভাবে আপডেট হয়েছে');
       document.getElementById('changeOfficerPinForm').reset();
+      // Auto reconnect to fresh photo
+      const currentOfficer = api.getCurrentOfficer();
+      if (currentOfficer && String(currentOfficer.id) === String(memberId)) {
+         if (photoData) localStorage.setItem('dtc_officer_photo', photoData);
+         updateUserUI();
+      }
     } else {
-      alert(res.error || 'পিন পরিবর্তন ব্যর্থ হয়েছে');
+      alert(res.error || 'প্রোফাইল আপডেট ব্যর্থ হয়েছে');
     }
   } catch (err) {
     console.error(err);
@@ -222,16 +293,35 @@ document.getElementById('changeOfficerPinForm')?.addEventListener('submit', asyn
   }
 });
 
+// Change Admin PIN & Profile
+function openChangeAdminPinModal() {
+  document.getElementById('changeAdminPinModal').classList.remove('hidden');
+  const existingPhoto = localStorage.getItem('dtc_admin_photo');
+  if (existingPhoto) {
+     document.getElementById('adminProfilePreview').src = existingPhoto;
+  }
+}
+function closeChangeAdminPinModal() {
+  document.getElementById('changeAdminPinModal').classList.add('hidden');
+  document.getElementById('adminPhotoData').value = '';
+}
+
 document.getElementById('changeAdminPinForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const oldPin = document.getElementById('currentAdminPinInput').value;
   const newPin = document.getElementById('newAdminPinInput').value;
+  const photoData = document.getElementById('adminPhotoData').value;
+
   try {
-    const res = await api.changeAdminPin(oldPin, newPin);
+    const res = await api.changeAdminPin(oldPin, newPin, photoData || undefined);
     if (res.success) {
       closeChangeAdminPinModal();
-      showToast('Admin PIN changed successfully');
+      showToast('Admin profile updated successfully');
       document.getElementById('changeAdminPinForm').reset();
+      if (photoData) {
+        localStorage.setItem('dtc_admin_photo', photoData);
+      }
+      updateUserUI();
     } else {
       alert(res.error);
     }

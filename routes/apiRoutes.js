@@ -10,8 +10,8 @@ const router = Router();
 // Authentication endpoints
 router.post('/auth/officer-login', authController.officerLogin);
 router.post('/auth/admin-login', authController.adminLogin);
-router.post('/auth/change-admin-pin', authController.changeAdminPin);
-router.post('/auth/change-officer-pin', authController.changeOfficerPin);
+router.post('/auth/change-admin-pin', authController.updateAdminProfile);
+router.post('/auth/change-officer-pin', authController.updateOfficerProfile);
 
 // Team endpoints
 router.get('/team', teamController.getTeam);

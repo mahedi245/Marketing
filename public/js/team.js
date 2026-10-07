@@ -29,8 +29,9 @@ async function renderTeamList() {
       tr.className = 'border-b border-zinc-800 hover:bg-zinc-800/50 text-sm transition-colors';
 
       tr.innerHTML = `
-        <td class="py-3 px-3 font-semibold text-white">
-          ${escapeHtml(m.name)}
+        <td class="py-3 px-3 font-semibold text-white flex items-center space-x-2">
+          <img src="${m.photo_data || '/logo.png'}" class="w-8 h-8 rounded-full border border-zinc-700 bg-zinc-900 object-cover shrink-0">
+          <span>${escapeHtml(m.name)}</span>
         </td>
         <td class="py-3 px-3 text-zinc-400">
           ${escapeHtml(m.role || 'Officer')}
@@ -42,12 +43,12 @@ async function renderTeamList() {
           ${m.total_visits || 0}
         </td>
         <td class="py-3 px-3 text-right whitespace-nowrap">
-          <span class="inline-block px-2 py-0.5 text-[10px] uppercase rounded-lg ${m.active ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/80' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'} font-bold">
-            ${m.active ? 'Active' : 'Inactive'}
-          </span>
-          <button onclick="toggleMemberActive(${m.id}, ${m.active ? 0 : 1})" class="ml-2 text-xs font-semibold ${m.active ? 'text-zinc-500 hover:text-zinc-300' : 'text-emerald-500 hover:text-emerald-400'}" title="${m.active ? 'Disable' : 'Enable'}">
-            ${m.active ? 'Disable' : 'Enable'}
-          </button>
+      <span class="inline-block px-2 py-0.5 text-[10px] uppercase rounded-lg ${m.active ? 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/80' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'} font-bold">
+        ${m.active ? 'Active' : 'Inactive'}
+      </span>
+      <button onclick="toggleMemberActive(${m.id}, ${m.active ? 0 : 1})" class="ml-2 text-[11px] px-1.5 py-0.5 rounded border ${m.active ? 'text-zinc-400 border-zinc-700 hover:bg-zinc-800' : 'text-emerald-400 border-emerald-800 hover:bg-emerald-900'} font-bold transition-all" title="${m.active ? 'Disable' : 'Enable'}">
+        ${m.active ? 'Disable' : 'Enable'}
+      </button>
           <button onclick="editMember(${m.id})" class="ml-2 text-primary-400 hover:text-primary-300 transition-colors" title="Edit">
             <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </button>
@@ -69,6 +70,7 @@ async function handleAddMember(e) {
   const role = document.getElementById('newMemberRole').value.trim();
   const phone = document.getElementById('newMemberPhone').value.trim();
   const pin = document.getElementById('newMemberPin').value.trim();
+  const photo_data = document.getElementById('addMemberPhotoData')?.value || undefined;
 
   if (!name) {
     alert('Please enter member name');
@@ -76,9 +78,13 @@ async function handleAddMember(e) {
   }
 
   try {
-    const res = await api.createTeamMember({ name, role, phone, pin });
+    const payload = { name, role, phone, pin };
+    if (photo_data) payload.photo_data = photo_data;
+    const res = await api.createTeamMember(payload);
     if (res.success) {
       document.getElementById('addMemberForm').reset();
+      document.getElementById('addMemberPhotoPreview').src = '/logo.png';
+      document.getElementById('addMemberPhotoData').value = '';
       showToast('New team member added!');
       await renderTeamList();
       // Reload dropdowns
@@ -105,12 +111,16 @@ function editMember(id) {
   document.getElementById('editMemberRole').value = m.role || '';
   document.getElementById('editMemberPhone').value = m.phone || '';
   document.getElementById('editMemberPin').value = ''; // Don't prefill existing pin
+  document.getElementById('editMemberPhotoData').value = '';
+  document.getElementById('editMemberPhotoPreview').src = m.photo_data || '/logo.png';
 }
 
 function cancelEditMember() {
   document.getElementById('editMemberForm').classList.add('hidden');
   document.getElementById('addMemberForm').classList.remove('hidden');
   document.getElementById('editMemberForm').reset();
+  document.getElementById('editMemberPhotoPreview').src = '/logo.png';
+  document.getElementById('editMemberPhotoData').value = '';
 }
 
 async function handleEditMemberSave(e) {
@@ -120,10 +130,12 @@ async function handleEditMemberSave(e) {
   const role = document.getElementById('editMemberRole').value.trim();
   const phone = document.getElementById('editMemberPhone').value.trim();
   const pin = document.getElementById('editMemberPin').value.trim();
+  const photo_data = document.getElementById('editMemberPhotoData')?.value;
 
   try {
     const payload = { name, role, phone };
     if (pin) payload.pin = pin;
+    if (photo_data) payload.photo_data = photo_data;
 
     const res = await api.updateTeamMember(id, payload);
     if (res.success) {

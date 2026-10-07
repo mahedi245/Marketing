@@ -14,7 +14,7 @@ export async function officerLogin(req, res) {
       return res.status(400).json({ success: false, error: 'PIN is required' });
     }
 
-    const member = await db.prepare('SELECT id, name, role, phone, pin, active FROM team_members WHERE id = ?').get(Number(memberId));
+    const member = await db.prepare('SELECT id, name, role, phone, pin, active, photo_data FROM team_members WHERE id = ?').get(Number(memberId));
 
     if (!member || !member.active) {
       return res.status(404).json({ success: false, error: 'Officer not found or inactive' });
@@ -32,7 +32,8 @@ export async function officerLogin(req, res) {
         id: member.id,
         name: member.name,
         role: member.role,
-        phone: member.phone
+        phone: member.phone,
+        photo_data: member.photo_data
       },
       token: `officer_${member.id}`
     });
@@ -57,10 +58,14 @@ export async function adminLogin(req, res) {
       return res.status(401).json({ success: false, error: 'Incorrect Admin PIN' });
     }
 
+    const photoRow = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_photo_data'").get();
+    const photoData = photoRow ? photoRow.value : null;
+
     res.json({
       success: true,
       isAdmin: true,
-      token: ADMIN_TOKEN_KEY
+      token: ADMIN_TOKEN_KEY,
+      photoData
     });
   } catch (error) {
     console.error('Error in adminLogin:', error);
@@ -68,13 +73,9 @@ export async function adminLogin(req, res) {
   }
 }
 
-export async function changeAdminPin(req, res) {
+export async function updateAdminProfile(req, res) {
   try {
-    const { oldPin, newPin } = req.body;
-
-    if (!newPin || String(newPin).trim().length < 4) {
-      return res.status(400).json({ success: false, error: 'New PIN must be at least 4 digits' });
-    }
+    const { oldPin, newPin, photoData } = req.body;
 
     const row = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_pin'").get();
     const currentAdminPin = row ? row.value : '25800';
@@ -83,25 +84,31 @@ export async function changeAdminPin(req, res) {
       return res.status(401).json({ success: false, error: 'Current Admin PIN is incorrect' });
     }
 
-    await db.prepare("UPDATE app_settings SET value = ? WHERE key = 'admin_pin'").run(String(newPin).trim());
+    if (newPin && String(newPin).trim().length >= 4) {
+      await db.prepare("UPDATE app_settings SET value = ? WHERE key = 'admin_pin'").run(String(newPin).trim());
+    }
 
-    res.json({ success: true, message: 'Admin PIN updated successfully' });
+    if (photoData !== undefined) {
+      const checkAdminPhoto = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_photo_data'").get();
+      if (!checkAdminPhoto) {
+        await db.prepare("INSERT INTO app_settings (key, value) VALUES ('admin_photo_data', ?)").run(photoData);
+      } else {
+        await db.prepare("UPDATE app_settings SET value = ? WHERE key = 'admin_photo_data'").run(photoData);
+      }
+    }
+
+    res.json({ success: true, message: 'Admin Profile updated successfully' });
   } catch (error) {
-    console.error('Error in changeAdminPin:', error);
+    console.error('Error in updateAdminProfile:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }
 
-export async function changeOfficerPin(req, res) {
+export async function updateOfficerProfile(req, res) {
   try {
-    const { memberId, oldPin, newPin } = req.body;
-
-    if (!newPin || String(newPin).trim().length < 4) {
-      return res.status(400).json({ success: false, error: 'New PIN must be at least 4 digits' });
-    }
+    const { memberId, oldPin, newPin, photoData } = req.body;
 
     const member = await db.prepare('SELECT pin FROM team_members WHERE id = ?').get(Number(memberId));
-
     if (!member) {
       return res.status(404).json({ success: false, error: 'Officer not found' });
     }
@@ -111,11 +118,27 @@ export async function changeOfficerPin(req, res) {
       return res.status(401).json({ success: false, error: 'Current PIN is incorrect' });
     }
 
-    await db.prepare('UPDATE team_members SET pin = ? WHERE id = ?').run(String(newPin).trim(), Number(memberId));
+    let query = 'UPDATE team_members SET updated_at = CURRENT_TIMESTAMP';
+    const params = [];
 
-    res.json({ success: true, message: 'Officer PIN updated successfully' });
+    if (newPin && String(newPin).trim().length >= 4) {
+      query += ', pin = ?';
+      params.push(String(newPin).trim());
+    }
+
+    if (photoData !== undefined) {
+       query += ', photo_data = ?';
+       params.push(photoData);
+    }
+
+    query += ' WHERE id = ?';
+    params.push(Number(memberId));
+
+    await db.prepare(query).run(...params);
+
+    res.json({ success: true, message: 'Profile updated successfully' });
   } catch (error) {
-    console.error('Error in changeOfficerPin:', error);
+    console.error('Error in updateOfficerProfile:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }

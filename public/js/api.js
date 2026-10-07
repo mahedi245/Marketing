@@ -28,6 +28,11 @@ const api = {
       localStorage.setItem('dtc_officer_id', data.officer.id);
       localStorage.setItem('dtc_officer_name', data.officer.name);
       localStorage.setItem('dtc_officer_role', data.officer.role);
+      if (data.officer.photo_data) {
+        localStorage.setItem('dtc_officer_photo', data.officer.photo_data);
+      } else {
+        localStorage.removeItem('dtc_officer_photo');
+      }
     }
     return data;
   },
@@ -41,24 +46,29 @@ const api = {
     const data = await res.json();
     if (data.success) {
       localStorage.setItem('dtc_admin_token', data.token);
+      if (data.photoData) {
+        localStorage.setItem('dtc_admin_photo', data.photoData);
+      } else {
+        localStorage.removeItem('dtc_admin_photo');
+      }
     }
     return data;
   },
 
-  async changeAdminPin(oldPin, newPin) {
+  async changeAdminPin(oldPin, newPin, photoData = undefined) {
     const res = await fetch(`${API_BASE}/auth/change-admin-pin`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify({ oldPin, newPin })
+      body: JSON.stringify({ oldPin, newPin, photoData })
     });
     return await res.json();
   },
 
-  async changeOfficerPin(memberId, oldPin, newPin) {
+  async changeOfficerPin(memberId, oldPin, newPin, photoData = undefined) {
     const res = await fetch(`${API_BASE}/auth/change-officer-pin`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify({ memberId, oldPin, newPin })
+      body: JSON.stringify({ memberId, oldPin, newPin, photoData })
     });
     return await res.json();
   },
@@ -73,18 +83,21 @@ const api = {
     return {
       id: Number(id),
       name: localStorage.getItem('dtc_officer_name'),
-      role: localStorage.getItem('dtc_officer_role')
+      role: localStorage.getItem('dtc_officer_role'),
+      photo: localStorage.getItem('dtc_officer_photo')
     };
   },
 
   logoutAdmin() {
     localStorage.removeItem('dtc_admin_token');
+    localStorage.removeItem('dtc_admin_photo');
   },
 
   logoutOfficer() {
     localStorage.removeItem('dtc_officer_id');
     localStorage.removeItem('dtc_officer_name');
     localStorage.removeItem('dtc_officer_role');
+    localStorage.removeItem('dtc_officer_photo');
   },
 
   // Team

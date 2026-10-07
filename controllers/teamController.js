@@ -12,6 +12,7 @@ export async function getTeam(req, res) {
         m.role,
         m.active,
         m.created_at,
+        m.photo_data,
         COUNT(v.id) as total_visits
       FROM team_members m
       LEFT JOIN visits v ON m.id = v.member_id
@@ -54,7 +55,7 @@ export async function createMember(req, res) {
 export async function updateMember(req, res) {
   try {
     const { id } = req.params;
-    const { name, phone, email, role, active, pin } = req.body;
+    const { name, phone, email, role, active, pin, photo_data } = req.body;
 
     // Fetch existing member to handle partial updates (like toggle status)
     const existing = await db.prepare('SELECT * FROM team_members WHERE id = ?').get(Number(id));
@@ -73,12 +74,13 @@ export async function updateMember(req, res) {
       phone !== undefined ? phone.trim() : (existing.phone || ''),
       email !== undefined ? email.trim() : (existing.email || ''),
       role !== undefined ? role.trim() : (existing.role || 'Marketing Officer'),
-      active !== undefined ? (active ? 1 : 0) : existing.active
+      active !== undefined ? (active ? 1 : 0) : existing.active,
+      photo_data !== undefined ? photo_data : existing.photo_data
     ];
 
     let query = `
       UPDATE team_members
-      SET name = ?, phone = ?, email = ?, role = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+      SET name = ?, phone = ?, email = ?, role = ?, active = ?, photo_data = ?, updated_at = CURRENT_TIMESTAMP
     `;
 
     if (pin && pin.trim()) {

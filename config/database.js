@@ -95,15 +95,19 @@ export async function initDatabase() {
     );
   `);
 
-  // Ensure pin column exists if migrating from earlier schema
+  // Ensure pin and photo_data columns exist if migrating from earlier schema
   try {
     const tableInfo = await db.prepare("PRAGMA table_info(team_members)").all();
     const hasPin = tableInfo.some((col) => col.name === 'pin');
+    const hasPhoto = tableInfo.some((col) => col.name === 'photo_data');
     if (!hasPin) {
       await db.exec("ALTER TABLE team_members ADD COLUMN pin TEXT DEFAULT '1234'");
     }
+    if (!hasPhoto) {
+      await db.exec("ALTER TABLE team_members ADD COLUMN photo_data TEXT");
+    }
   } catch (err) {
-    console.error('Migration warning (pin column):', err.message);
+    console.error('Migration warning (pin/photo column):', err.message);
   }
 
   // Create visits table
