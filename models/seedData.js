@@ -1,11 +1,17 @@
 import { db } from '../config/database.js';
 
 export async function seedInitialData() {
+  const seeded = await db.prepare("SELECT value FROM app_settings WHERE key = 'demo_seeded'").get();
+  if (seeded) {
+    return; // Already initialized once
+  }
+
   const memberCountStmt = await db.prepare('SELECT COUNT(*) as count FROM team_members').get();
   const count = memberCountStmt ? memberCountStmt.count : 0;
 
   if (count > 0) {
-    return; // Already seeded or has data
+    await db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('demo_seeded', '1')").run();
+    return;
   }
 
   console.log('[Database] Seeding initial 10 marketing team members and sample visits...');
@@ -46,105 +52,6 @@ export async function seedInitialData() {
       status: 'Interested',
       notes: 'Discussed material supplies. Client requested brochure and price estimate.',
       followUpDays: 3
-    },
-    {
-      member_id: memberIds[1],
-      customer_name: 'Kabir Hossain',
-      site_name: 'Apex Footwear Central Depot',
-      address: 'Joydebpur Road, Gazipur',
-      phone_number: '01819-223388',
-      daysAgo: 0,
-      status: 'Need Quotation',
-      notes: 'Meeting with Procurement Manager. Send formal quotation by tomorrow.',
-      followUpDays: 1
-    },
-    {
-      member_id: memberIds[2],
-      customer_name: 'Dr. Shahriar Rahman',
-      site_name: 'Delta Care Hospital Annex',
-      address: 'Mirpur-10, Dhaka',
-      phone_number: '01912-776655',
-      daysAgo: 1,
-      status: 'Follow-up',
-      notes: 'Initial presentation done. Need follow-up meeting with Managing Director.',
-      followUpDays: 4
-    },
-    {
-      member_id: memberIds[3],
-      customer_name: 'Mizanur Rahman',
-      site_name: 'Padma Textile Mills',
-      address: 'Bhairab Road, Narayanganj',
-      phone_number: '01611-334499',
-      daysAgo: 2,
-      status: 'Closed/Won',
-      notes: 'Deal finalized for 6 months bulk order contract. Signed work order.',
-      followUpDays: null
-    },
-    {
-      member_id: memberIds[4],
-      customer_name: 'Anisul Haque',
-      site_name: 'Crown Properties Ltd',
-      address: 'Sector 4, Uttara, Dhaka',
-      phone_number: '01712-445588',
-      daysAgo: 2,
-      status: 'Need Quotation',
-      notes: 'Quotation requested for 500 units.',
-      followUpDays: 2
-    },
-    {
-      member_id: memberIds[5],
-      customer_name: 'Zahangir Alam',
-      site_name: 'Dhaka Super Market Syndicate',
-      address: 'Kaptan Bazar, Motijheel, Dhaka',
-      phone_number: '01815-112299',
-      daysAgo: 3,
-      status: 'Interested',
-      notes: 'Positive meeting, requested product sample pack.',
-      followUpDays: 5
-    },
-    {
-      member_id: memberIds[6],
-      customer_name: 'Mustafa Kamal',
-      site_name: 'Eastern Housing Plaza',
-      address: 'Kakrail, Dhaka',
-      phone_number: '01914-332211',
-      daysAgo: 4,
-      status: 'Follow-up',
-      notes: 'Decision pending on board approval.',
-      followUpDays: 7
-    },
-    {
-      member_id: memberIds[7],
-      customer_name: 'Nazmul Huda',
-      site_name: 'Bengal Plastic Warehousing',
-      address: 'Tejgaon I/A, Dhaka',
-      phone_number: '01511-665544',
-      daysAgo: 5,
-      status: 'Not Interested',
-      notes: 'Currently working with alternative existing vendor.',
-      followUpDays: null
-    },
-    {
-      member_id: memberIds[8],
-      customer_name: 'Tareq Mahmud',
-      site_name: 'Navana Heights',
-      address: 'Gulshan 2, Dhaka',
-      phone_number: '01713-998877',
-      daysAgo: 6,
-      status: 'Closed/Won',
-      notes: 'Advance payment received. Delivery scheduled next week.',
-      followUpDays: null
-    },
-    {
-      member_id: memberIds[9],
-      customer_name: 'Shamim Osman',
-      site_name: 'Rupali Real Estate',
-      address: 'Dhanmondi 27, Dhaka',
-      phone_number: '01812-554433',
-      daysAgo: 7,
-      status: 'Interested',
-      notes: 'Very interested in our new catalog. Follow-up after Eid holidays.',
-      followUpDays: 6
     }
   ];
 
@@ -175,5 +82,6 @@ export async function seedInitialData() {
     );
   }
 
-  console.log(`[Database] Successfully seeded ${initialMembers.length} team members and ${sampleVisits.length} visit logs.`);
+  await db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('demo_seeded', '1')").run();
+  console.log(`[Database] Successfully seeded initial demo data.`);
 }
