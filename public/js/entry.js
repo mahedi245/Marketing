@@ -131,7 +131,7 @@ async function initEntryForm() {
 
         if (photoData) payload.photo_data = photoData;
 
-        // Add GPS location - Mandatory for tracking field officers
+        // Add GPS location - Mandatory and validate to block fake 0.0.0.0 locations
         try {
           const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -140,11 +140,19 @@ async function initEntryForm() {
               maximumAge: 0
             });
           });
-          payload.lat = position.coords.latitude;
-          payload.long = position.coords.longitude;
+
+          const lat = position.coords.latitude;
+          const long = position.coords.longitude;
+
+          if (!lat || !long || lat === 0 || long === 0 || lat === 0.0 && long === 0.0) {
+            throw new Error('Invalid GPS coordinates (0.0)');
+          }
+
+          payload.lat = lat;
+          payload.long = long;
         } catch (geolocationError) {
-          console.error('Geolocation required:', geolocationError);
-          alert('⚠️ ফাঁকিবাজি রোধ করতে জিপিএস লোকেশন বাধ্যতামূলক! অনুগ্রহ করে ফোনের Location (GPS) অন করুন এবং ব্রাউজারে লোকেশনের অনুমতি দিন।');
+          console.error('Geolocation required/invalid:', geolocationError);
+          alert('⚠️ ফাঁকিবাজি রোধ করতে সঠিক জিপিএস লোকেশন (GPS) বাধ্যতামূলক! আপনার ডিভাইসের লোকেশন অন করুন এবং সঠিক সিগন্যাল নিশ্চিত করুন (0.0.0.0 লোকেشن গ্রহণযোগ্য নয়)।');
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;
           return;
