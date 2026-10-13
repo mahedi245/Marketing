@@ -131,20 +131,23 @@ async function initEntryForm() {
 
         if (photoData) payload.photo_data = photoData;
 
-        // Add GPS location
+        // Add GPS location - Mandatory for tracking field officers
         try {
           const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
               enableHighAccuracy: true,
-              timeout: 5000,
+              timeout: 10000,
               maximumAge: 0
             });
           });
           payload.lat = position.coords.latitude;
           payload.long = position.coords.longitude;
         } catch (geolocationError) {
-          console.warn('Geolocation failed or denied:', geolocationError);
-          showToast('লোকেশন পাওয়া যায়নি, তবুও ভিজিটটি সেভ হচ্ছে।');
+          console.error('Geolocation required:', geolocationError);
+          alert('⚠️ ফাঁকিবাজি রোধ করতে জিপিএস লোকেশন বাধ্যতামূলক! অনুগ্রহ করে ফোনের Location (GPS) অন করুন এবং ব্রাউজারে লোকেশনের অনুমতি দিন।');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+          return;
         }
 
         const result = await api.createVisit(payload);
