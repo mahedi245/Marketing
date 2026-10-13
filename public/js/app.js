@@ -146,7 +146,7 @@ function updateUserUI() {
   }
 }
 
-// Global Image Resizer & Preview utility with Watermark (Logo, Area Name, Time)
+// Global Image Resizer & Preview utility with Watermark (Logo, DTC, Area Name, Time)
 window.previewImage = function(event, imgId, hiddenInputId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -189,37 +189,77 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateStr = now.toLocaleDateString();
 
-      // Watermark Overlay Box (Top-Left badge)
-      const padding = 10;
-      const boxWidth = 220;
-      const boxHeight = 58;
-      const boxX = padding;
-      const boxY = padding;
+      // Load Logo Image
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'anonymous';
+      logoImg.onload = function() {
+        const padding = 10;
+        const boxWidth = 210;
+        const boxHeight = 56;
+        const boxX = padding;
+        const boxY = padding;
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 1;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
 
-      ctx.beginPath();
-      ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
-      ctx.fill();
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
+        ctx.fill();
+        ctx.stroke();
 
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.fillText('🏢 DHAKA TIMBER COMPLEX', boxX + 10, boxY + 20);
+        // Draw Logo inside box
+        ctx.drawImage(logoImg, boxX + 8, boxY + 10, 36, 36);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '11px sans-serif';
-      ctx.fillText(`📍 ${areaName}`, boxX + 10, boxY + 38);
+        // Draw DTC text and Area / Time
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('DTC Marketing', boxX + 50, boxY + 20);
 
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = '10px sans-serif';
-      ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, boxX + 10, boxY + 52);
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '11px sans-serif';
+        ctx.fillText(`📍 ${areaName}`, boxX + 50, boxY + 35);
 
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      document.getElementById(imgId).src = dataUrl;
-      document.getElementById(hiddenInputId).value = dataUrl;
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, boxX + 50, boxY + 48);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        document.getElementById(imgId).src = dataUrl;
+        document.getElementById(hiddenInputId).value = dataUrl;
+      };
+
+      logoImg.onerror = function() {
+        // Fallback if logo fails to load
+        const padding = 10;
+        const boxWidth = 200;
+        const boxHeight = 52;
+        const boxX = padding;
+        const boxY = padding;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText('DTC Marketing', boxX + 10, boxY + 18);
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '11px sans-serif';
+        ctx.fillText(`📍 ${areaName}`, boxX + 10, boxY + 33);
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, boxX + 10, boxY + 46);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        document.getElementById(imgId).src = dataUrl;
+        document.getElementById(hiddenInputId).value = dataUrl;
+      };
+
+      logoImg.src = '/logo.png';
     };
     img.src = e.target.result;
   };
