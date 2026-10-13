@@ -146,7 +146,7 @@ function updateUserUI() {
   }
 }
 
-// Global Image Resizer & Preview utility with Watermark (Timber Complex, Time, Location)
+// Global Image Resizer & Preview utility with Watermark (Logo, Area Name, Time)
 window.previewImage = function(event, imgId, hiddenInputId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -178,41 +178,44 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Draw Watermark Overlay
-      const now = new Date();
-      const dateStr = now.toLocaleDateString();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      let latLongText = '';
-      try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
-        });
-        if (position && position.coords) {
-          latLongText = `GPS: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
-        }
-      } catch(err) {
-        latLongText = 'GPS: Verified';
+      // Get Area / Address name from active input if available
+      let areaName = 'Dhaka';
+      const addrInput = document.getElementById('entryAddress') || document.getElementById('editAddress');
+      if (addrInput && addrInput.value.trim()) {
+        areaName = addrInput.value.trim();
       }
 
-      const padding = 12;
-      const boxHeight = 64;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.65) clans';
-      ctx.fillRect(0, height - boxHeight, width, boxHeight);
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toLocaleDateString();
+
+      // Watermark Overlay Box (Top-Left badge)
+      const padding = 10;
+      const boxWidth = 220;
+      const boxHeight = 58;
+      const boxX = padding;
+      const boxY = padding;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('🏢 DHAKA TIMBER COMPLEX', boxX + 10, boxY + 20);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillText('🏢 DHAKA TIMBER COMPLEX', padding, height - boxHeight + 22);
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`📍 ${areaName}`, boxX + 10, boxY + 38);
 
       ctx.fillStyle = '#38bdf8';
-      ctx.font = '11px sans-serif';
-      ctx.fillText(`📅 ${dateStr} ⏰ ${timeStr}`, padding, height - boxHeight + 42);
-
-      if (latLongText) {
-        ctx.fillStyle = '#4ade80';
-        ctx.font = '10px sans-serif';
-        ctx.fillText(`📍 ${latLongText}`, padding, height - boxHeight + 56);
-      }
+      ctx.font = '10px sans-serif';
+      ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, boxX + 10, boxY + 52);
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       document.getElementById(imgId).src = dataUrl;
