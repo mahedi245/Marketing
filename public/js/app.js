@@ -202,7 +202,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 13px sans-serif';
-      ctx.fillText('🏢 Timber Complex', padding, height - boxHeight + 22);
+      ctx.fillText('🏢 DHAKA TIMBER COMPLEX', padding, height - boxHeight + 22);
 
       ctx.fillStyle = '#38bdf8';
       ctx.font = '11px sans-serif';
