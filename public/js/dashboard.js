@@ -29,17 +29,7 @@ async function initDashboard() {
     }
   });
 
-  // Auto-refresh Dashboard every 15 seconds in background for real-time live data sync
-  setInterval(() => {
-    if (!document.getElementById('viewDashboard').classList.contains('hidden') && api.isAdmin()) {
-      refreshKPIs();
-      fetchAndRenderVisits();
-      refreshCharts();
-    }
-    if (!document.getElementById('viewMyVisits').classList.contains('hidden')) {
-      fetchAndRenderMyVisits();
-    }
-  }, 15000);
+  // Background auto-refresh disabled to prevent unwanted reloads and lag
 }
 
 async function refreshDashboard() {

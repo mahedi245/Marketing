@@ -17,6 +17,29 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Database initialization cached promise for serverless environments
+let initPromise = null;
+async function ensureDbReady() {
+  if (!initPromise) {
+    initPromise = (async () => {
+      await initDatabase();
+      await seedInitialData();
+    })();
+  }
+  return initPromise;
+}
+
+// Middleware to ensure DB is initialized before API requests on serverless (Vercel)
+app.use(async (req, res, next) => {
+  try {
+    await ensureDbReady();
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res.status(500).json({ success: false, error: 'Database service unavailable' });
+  }
+});
+
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -28,37 +51,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Async initialization before listening
-async function startServer() {
-  try {
-    await initDatabase();
-    await seedInitialData();
-
+// For local running
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  ensureDbReady().then(() => {
     app.listen(PORT, '0.0.0.0', () => {
-      const interfaces = os.networkInterfaces();
-      const addresses = [];
-
-      for (const name of Object.keys(interfaces)) {
-        for (const net of interfaces[name]) {
-          if (net.family === 'IPv4' && !net.internal) {
-            addresses.push(net.address);
-          }
-        }
-      }
-
-      const lanIp = addresses[0] || '127.0.0.1';
-
-      console.log('\n=============================================================');
-      console.log('   🚀 Marketing Team Visit Tracker & Dashboard Running!');
-      console.log('=============================================================');
-      console.log(`  💻 PC / Localhost:     http://localhost:${PORT}`);
-      console.log(`  📱 Mobile / Local LAN:  http://${lanIp}:${PORT}`);
-      console.log('=============================================================\n');
+      console.log(`Server listening on port ${PORT}`);
     });
-  } catch (err) {
-    console.error('Failed to initialize server:', err);
-    process.exit(1);
-  }
+  }).catch(err => {
+    console.error('Failed to start server:', err);
+  });
 }
 
-startServer();
+export default app;
