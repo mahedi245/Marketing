@@ -6,3 +6,4 @@ data/*.db-wal
 .claude/
 
 .vercel
+.env*

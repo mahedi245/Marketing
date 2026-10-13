@@ -116,7 +116,8 @@ export async function getVisits(req, res) {
         v.next_follow_up_date,
         v.created_at,
         v.lat,
-        v.long
+        v.long,
+        v.entry_time
       FROM visits v
       JOIN team_members m ON v.member_id = m.id
       ${whereSql}
@@ -226,8 +227,9 @@ export async function createVisit(req, res) {
         next_follow_up_date,
         photo_data,
         lat,
-        long
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        long,
+        entry_time
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       Number(member_id),
       customer_name.trim(),
@@ -236,11 +238,12 @@ export async function createVisit(req, res) {
       phone_number.trim(),
       visit_date,
       status,
-      notes ? (entry_time ? `[Entry Time: ${entry_time}] ` + notes.trim() : notes.trim()) : (entry_time ? `[Entry Time: ${entry_time}]` : ''),
+      notes ? notes.trim() : '',
       next_follow_up_date || null,
       photo_data || null,
       lat || null,
-      long || null
+      long || null,
+      entry_time || null
     );
 
     const newId = Number(result.lastInsertRowid);
@@ -268,6 +271,7 @@ export async function updateVisit(req, res) {
       address,
       phone_number,
       visit_date,
+      entry_time,
       status,
       notes,
       next_follow_up_date,
@@ -277,7 +281,7 @@ export async function updateVisit(req, res) {
     } = req.body;
 
     // Check ownership or admin
-    const existing = await db.prepare('SELECT member_id, photo_data, lat, long FROM visits WHERE id = ?').get(Number(id));
+    const existing = await db.prepare('SELECT member_id, photo_data, lat, long, entry_time FROM visits WHERE id = ?').get(Number(id));
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Record not found' });
     }
@@ -303,6 +307,7 @@ export async function updateVisit(req, res) {
         photo_data = ?,
         lat = ?,
         long = ?,
+        entry_time = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
@@ -318,6 +323,7 @@ export async function updateVisit(req, res) {
       photo_data !== undefined ? photo_data : existing.photo_data,
       lat !== undefined ? lat : existing.lat,
       long !== undefined ? long : existing.long,
+      entry_time !== undefined ? entry_time : existing.entry_time,
       Number(id)
     );
 

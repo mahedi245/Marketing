@@ -499,7 +499,10 @@ async function fetchAndRenderVisits() {
       const statusBadge = getStatusBadgeHTML(v.status);
 
       tr.innerHTML = `
-        <td class="py-3 px-3 font-semibold text-zinc-300 whitespace-nowrap">${v.visit_date}</td>
+        <td class="py-3 px-3 font-semibold text-zinc-300 whitespace-nowrap">
+          <div>${v.visit_date}</div>
+          ${v.entry_time ? `<div class="text-[11px] text-primary-400 font-bold mt-0.5">🕒 ${v.entry_time}</div>` : ''}
+        </td>
         <td class="py-3 px-3">
           <div class="font-bold text-white">${escapeHtml(v.member_name)}</div>
           <div class="text-[11px] text-zinc-400 capitalize">${escapeHtml(v.member_role || '')}</div>

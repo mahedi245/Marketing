@@ -130,7 +130,7 @@ export async function initDatabase() {
     );
   `);
 
-  // Ensure photo_data and location exists in visits table
+  // Ensure photo_data, location, and entry_time exists in visits table
   try {
     const visitsTableInfo = await db.prepare("PRAGMA table_info(visits)").all();
     const hasVisitPhoto = visitsTableInfo.some((col) => col.name === 'photo_data');
@@ -144,6 +144,10 @@ export async function initDatabase() {
     const hasLong = visitsTableInfo.some((col) => col.name === 'long');
     if (!hasLong) {
       await db.exec("ALTER TABLE visits ADD COLUMN long REAL");
+    }
+    const hasEntryTime = visitsTableInfo.some((col) => col.name === 'entry_time');
+    if (!hasEntryTime) {
+      await db.exec("ALTER TABLE visits ADD COLUMN entry_time TEXT");
     }
   } catch (err) {
     console.error('Migration warning (visits column addition):', err.message);
