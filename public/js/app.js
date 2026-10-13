@@ -146,7 +146,7 @@ function updateUserUI() {
   }
 }
 
-// Global Image Resizer & Preview utility with Watermark (Logo, DTC, Area Name, Time)
+// Global Image Resizer & Preview utility with Live Geocoded Watermark
 window.previewImage = function(event, imgId, hiddenInputId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -178,11 +178,33 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Get Area / Address name from active input if available
-      let areaName = 'Dhaka';
+      // Fetch Live GPS Current Location Area Name via Reverse Geocoding
+      let areaName = 'Current Location';
       const addrInput = document.getElementById('entryAddress') || document.getElementById('editAddress');
       if (addrInput && addrInput.value.trim()) {
         areaName = addrInput.value.trim();
+      }
+
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        });
+        if (position && position.coords) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=16&addressdetails=1`);
+          const geoData = await geoRes.json();
+          if (geoData && geoData.address) {
+            const addr = geoData.address;
+            areaName = addr.suburb || addr.road || addr.neighbourhood || addr.city_district || addr.town || addr.city || areaName;
+          }
+        }
+      } catch (err) {
+        console.log('Live geocode fallback to input/default:', err);
       }
 
       const now = new Date();
@@ -194,7 +216,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       logoImg.crossOrigin = 'anonymous';
       logoImg.onload = function() {
         const padding = 10;
-        const boxWidth = 210;
+        const boxWidth = 220;
         const boxHeight = 56;
         const boxX = padding;
         const boxY = padding;
@@ -211,7 +233,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
         // Draw Logo inside box
         ctx.drawImage(logoImg, boxX + 8, boxY + 10, 36, 36);
 
-        // Draw DTC text and Area / Time
+        // Draw DTC text and Live Area / Time
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 12px sans-serif';
         ctx.fillText('DTC Marketing', boxX + 50, boxY + 20);
@@ -230,9 +252,8 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       };
 
       logoImg.onerror = function() {
-        // Fallback if logo fails to load
         const padding = 10;
-        const boxWidth = 200;
+        const boxWidth = 210;
         const boxHeight = 52;
         const boxX = padding;
         const boxY = padding;
