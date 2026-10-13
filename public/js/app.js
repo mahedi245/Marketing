@@ -215,11 +215,11 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const logoImg = new Image();
       logoImg.crossOrigin = 'anonymous';
       logoImg.onload = function() {
-        const padding = 10;
+        const padding = 12;
         const boxWidth = 240;
         const boxHeight = 64;
         const boxX = padding;
-        const boxY = padding;
+        const boxY = height - boxHeight - padding; // Bottom-Left Corner
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
@@ -242,7 +242,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
         // Draw Logo inside white box
         ctx.drawImage(logoImg, logoBgX + 4, logoBgY + 4, 40, 40);
 
-        // Draw DTC text and Live Area / Time (shifted right for larger logo)
+        // Draw DTC text and Live Area / Time
         const textStartX = boxX + 64;
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 13px sans-serif';
@@ -262,11 +262,11 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       };
 
       logoImg.onerror = function() {
-        const padding = 10;
+        const padding = 12;
         const boxWidth = 210;
         const boxHeight = 52;
         const boxX = padding;
-        const boxY = padding;
+        const boxY = height - boxHeight - padding; // Bottom-Left Corner
 
         ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
         ctx.beginPath();
