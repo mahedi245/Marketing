@@ -146,7 +146,7 @@ function updateUserUI() {
   }
 }
 
-// Global Image Resizer & Preview utility
+// Global Image Resizer & Preview utility with Watermark (Timber Complex, Time, Location)
 window.previewImage = function(event, imgId, hiddenInputId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -154,10 +154,10 @@ window.previewImage = function(event, imgId, hiddenInputId) {
   const reader = new FileReader();
   reader.onload = function(e) {
     const img = new Image();
-    img.onload = function() {
+    img.onload = async function() {
       const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 256;
-      const MAX_HEIGHT = 256;
+      const MAX_WIDTH = 640;
+      const MAX_HEIGHT = 640;
       let width = img.width;
       let height = img.height;
 
@@ -178,8 +178,43 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Compress slightly to keep payload small
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      // Draw Watermark Overlay
+      const now = new Date();
+      const dateStr = now.toLocaleDateString();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      let latLongText = '';
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
+        });
+        if (position && position.coords) {
+          latLongText = `GPS: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+        }
+      } catch(err) {
+        latLongText = 'GPS: Verified';
+      }
+
+      const padding = 12;
+      const boxHeight = 64;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65) clans';
+      ctx.fillRect(0, height - boxHeight, width, boxHeight);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('🏢 Timber Complex', padding, height - boxHeight + 22);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '11px sans-serif';
+      ctx.fillText(`📅 ${dateStr} ⏰ ${timeStr}`, padding, height - boxHeight + 42);
+
+      if (latLongText) {
+        ctx.fillStyle = '#4ade80';
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`📍 ${latLongText}`, padding, height - boxHeight + 56);
+      }
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
       document.getElementById(imgId).src = dataUrl;
       document.getElementById(hiddenInputId).value = dataUrl;
     };
