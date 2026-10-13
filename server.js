@@ -29,8 +29,14 @@ async function ensureDbReady() {
   return initPromise;
 }
 
-// Middleware to ensure DB is initialized before API requests on serverless (Vercel)
-app.use(async (req, res, next) => {
+// Serve frontend static files first with caching (prevents static assets from blocking on DB cold start)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true
+}));
+
+// Middleware to ensure DB is initialized only before API requests on serverless (Vercel)
+app.use('/api', async (req, res, next) => {
   try {
     await ensureDbReady();
     next();
@@ -38,13 +44,7 @@ app.use(async (req, res, next) => {
     console.error('Database connection error:', err);
     res.status(500).json({ success: false, error: 'Database service unavailable' });
   }
-});
-
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Mount API routes
-app.use('/api', apiRoutes);
+}, apiRoutes);
 
 // SPA fallback
 app.get('*', (req, res) => {

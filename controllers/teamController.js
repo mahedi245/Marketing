@@ -3,6 +3,7 @@ import { db } from '../config/database.js';
 export async function getTeam(req, res) {
   try {
     const includeInactive = req.query.includeInactive === 'true';
+    const includePhoto = req.query.includePhoto === 'true';
     const query = `
       SELECT
         m.id,
@@ -12,7 +13,7 @@ export async function getTeam(req, res) {
         m.role,
         m.active,
         m.created_at,
-        m.photo_data,
+        ${includePhoto ? 'm.photo_data,' : ''}
         COUNT(v.id) as total_visits
       FROM team_members m
       LEFT JOIN visits v ON m.id = v.member_id

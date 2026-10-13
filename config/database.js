@@ -80,6 +80,16 @@ export async function initDatabase() {
     localDb.exec('PRAGMA foreign_keys = ON;');
   }
 
+  // Fast-path: Check if database is already initialized to skip slow cold-start DDL queries
+  try {
+    const adminCheck = await db.prepare("SELECT value FROM app_settings WHERE key = 'admin_pin'").get();
+    if (adminCheck) {
+      return; // Already initialized, instant return
+    }
+  } catch (err) {
+    // First run: tables do not exist yet, proceed with table creation
+  }
+
   // Create team_members table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS team_members (

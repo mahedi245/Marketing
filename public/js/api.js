@@ -101,8 +101,8 @@ const api = {
   },
 
   // Team
-  async getTeam(includeInactive = false) {
-    const res = await fetch(`${API_BASE}/team?includeInactive=${includeInactive}`, {
+  async getTeam(includeInactive = false, includePhoto = false) {
+    const res = await fetch(`${API_BASE}/team?includeInactive=${includeInactive}&includePhoto=${includePhoto}`, {
       headers: this.getAuthHeaders()
     });
     return await res.json();

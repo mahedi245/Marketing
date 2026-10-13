@@ -19,7 +19,7 @@ async function renderTeamList() {
   tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-zinc-500">Loading team...</td></tr>`;
 
   try {
-    const res = await api.getTeam(true);
+    const res = await api.getTeam(true, true);
     if (!res.success || !res.data) return;
 
     allMembersList = res.data;
@@ -201,19 +201,22 @@ async function toggleMemberActive(id, newStatus) {
 async function openShareModal() {
   document.getElementById('shareModal').classList.remove('hidden');
   try {
-    const res = await api.getInfo();
-    if (res.success) {
-      const lanIp = res.data.lanIp;
-      const port = res.data.port;
-      const mobileUrl = `http://${lanIp}:${port}`;
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    let mobileUrl = window.location.origin;
 
-      document.getElementById('shareUrlInput').value = mobileUrl;
-
-      // Generate QR Code dynamically
-      const qrImg = document.getElementById('shareQrCode');
-      if (qrImg) {
-        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mobileUrl)}`;
+    if (isLocal) {
+      const res = await api.getInfo();
+      if (res.success && res.data.lanIp) {
+        mobileUrl = `http://${res.data.lanIp}:${res.data.port}`;
       }
+    }
+
+    document.getElementById('shareUrlInput').value = mobileUrl;
+
+    // Generate QR Code dynamically
+    const qrImg = document.getElementById('shareQrCode');
+    if (qrImg) {
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mobileUrl)}`;
     }
   } catch (err) {
     console.error('Error opening share modal:', err);
