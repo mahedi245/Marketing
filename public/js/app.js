@@ -178,33 +178,11 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Fetch Live GPS Current Location Area Name via Reverse Geocoding
-      let areaName = 'Current Location';
+      // Use address from input if available instantly without slow external reverse-geocoding fetch
+      let areaName = 'Dhaka';
       const addrInput = document.getElementById('entryAddress') || document.getElementById('editAddress');
       if (addrInput && addrInput.value.trim()) {
         areaName = addrInput.value.trim();
-      }
-
-      try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          });
-        });
-        if (position && position.coords) {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=16&addressdetails=1`);
-          const geoData = await geoRes.json();
-          if (geoData && geoData.address) {
-            const addr = geoData.address;
-            areaName = addr.suburb || addr.road || addr.neighbourhood || addr.city_district || addr.town || addr.city || areaName;
-          }
-        }
-      } catch (err) {
-        console.log('Live geocode fallback to input/default:', err);
       }
 
       const now = new Date();
