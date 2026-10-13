@@ -104,6 +104,11 @@ async function initEntryForm() {
         document.getElementById('entryPhone').focus();
         return;
       }
+      if (!photoData) {
+        alert('📷 ভিজিট সংরক্ষণ করতে সেলফি বা সাইটের ছবি তোলা বাধ্যতামূলক!');
+        document.getElementById('entryPhotoUpload').focus();
+        return;
+      }
 
       const submitBtn = document.getElementById('entrySubmitBtn');
       const originalText = submitBtn.innerHTML;

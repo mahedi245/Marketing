@@ -280,7 +280,7 @@
 
           <!-- Photo / Selfie Attachment -->
           <div>
-            <label class="block text-xs sm:text-sm font-bold text-zinc-300 mb-1.5">📷 সেলফি বা ভিজিট ছবি (লোকেশন ও টাইম স্ট্যাম্প সহ)</label>
+            <label class="block text-xs sm:text-sm font-bold text-zinc-300 mb-1.5">📷 সেলফি বা ভিজিট ছবি * (বাধ্যতামূলক)</label>
             <div class="flex items-center space-x-4">
               <label for="entryPhotoUpload" class="cursor-pointer flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-primary-600/60 hover:border-primary-500 hover:bg-zinc-800/50 rounded-xl transition-all relative overflow-hidden group">
                 <img id="entryPhotoPreview" src="/logo.png" class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity">
@@ -289,7 +289,7 @@
                 <input type="file" id="entryPhotoUpload" accept="image/*" capture="user" class="hidden" onchange="previewImage(event, 'entryPhotoPreview', 'entryPhotoData')">
               </label>
               <div class="text-xs text-zinc-400 space-y-1 flex-1">
-                <p class="font-semibold text-zinc-200">📸 সেলফি বা সাইটের ছবি তুললে ছবির উপরে স্বয়ংক্রিয়ভাবে <span class="text-primary-400 font-bold">"Timber Complex"</span>, বর্তমান সময় এবং লোকেশন স্ট্যাম্প এমবেড হয়ে যাবে।</p>
+                <p class="font-medium text-zinc-300">ভিজিট সেভ করতে সেলফি বা সাইটের ছবি তোলা বাধ্যতামূলক।</p>
                 <button type="button" class="text-rose-500 hover:text-rose-400 font-bold text-[10px] mt-1" onclick="document.getElementById('entryPhotoPreview').src='/logo.png'; document.getElementById('entryPhotoData').value=''">ছবিটি মুছুন</button>
               </div>
             </div>
