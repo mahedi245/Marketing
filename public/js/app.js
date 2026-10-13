@@ -216,35 +216,45 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       logoImg.crossOrigin = 'anonymous';
       logoImg.onload = function() {
         const padding = 10;
-        const boxWidth = 220;
-        const boxHeight = 56;
+        const boxWidth = 240;
+        const boxHeight = 64;
         const boxX = padding;
         const boxY = padding;
 
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.78)';
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.lineWidth = 1;
 
         ctx.beginPath();
-        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8);
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 10);
         ctx.fill();
         ctx.stroke();
 
-        // Draw Logo inside box
-        ctx.drawImage(logoImg, boxX + 8, boxY + 10, 36, 36);
-
-        // Draw DTC text and Live Area / Time
+        // Draw White Background Box for Logo to make it pop and larger
+        const logoBgX = boxX + 8;
+        const logoBgY = boxY + 8;
+        const logoBgSize = 48;
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 12px sans-serif';
-        ctx.fillText('DTC Marketing', boxX + 50, boxY + 20);
+        ctx.beginPath();
+        ctx.roundRect(logoBgX, logoBgY, logoBgSize, logoBgSize, 8);
+        ctx.fill();
+
+        // Draw Logo inside white box
+        ctx.drawImage(logoImg, logoBgX + 4, logoBgY + 4, 40, 40);
+
+        // Draw DTC text and Live Area / Time (shifted right for larger logo)
+        const textStartX = boxX + 64;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillText('DTC Marketing', textStartX, boxY + 22);
 
         ctx.fillStyle = '#38bdf8';
         ctx.font = '11px sans-serif';
-        ctx.fillText(`📍 ${areaName}`, boxX + 50, boxY + 35);
+        ctx.fillText(`📍 ${areaName}`, textStartX, boxY + 39);
 
         ctx.fillStyle = '#f59e0b';
         ctx.font = '10px sans-serif';
-        ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, boxX + 50, boxY + 48);
+        ctx.fillText(`⏰ ${dateStr}, ${timeStr}`, textStartX, boxY + 54);
 
         const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
         document.getElementById(imgId).src = dataUrl;
