@@ -117,6 +117,11 @@ async function initEntryForm() {
       `;
 
       try {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const currentTime = `${hours}:${minutes}`;
+
         const payload = {
           member_id: Number(memberId),
           customer_name: customerName,
@@ -124,6 +129,7 @@ async function initEntryForm() {
           address: address,
           phone_number: phoneNumber,
           visit_date: visitDate,
+          entry_time: currentTime,
           status: selectedStatus,
           notes: notes,
           next_follow_up_date: nextFollowUp || null
