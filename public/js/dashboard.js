@@ -276,7 +276,31 @@ async function refreshCharts() {
     const res = await api.getChartsData();
     if (!res.success) return;
 
-    const { trend, statusDistribution } = res.data;
+    const { trend, statusDistribution, memberPerformance } = res.data;
+
+    // Render Today Officers Performance List (Ke koyti entry dilen)
+    const perfContainer = document.getElementById('todayOfficersPerformanceList');
+    if (perfContainer && memberPerformance) {
+      perfContainer.innerHTML = '';
+      if (memberPerformance.length === 0) {
+        perfContainer.innerHTML = `<div class="text-zinc-500 text-center py-4">কোনো কর্মকর্তা পাওয়া যায়নি</div>`;
+      } else {
+        memberPerformance.forEach(m => {
+          const count = m.today_count || 0;
+          perfContainer.innerHTML += `
+            <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
+              <div class="flex items-center space-x-2 truncate">
+                <div class="w-2 h-2 rounded-full ${count > 0 ? 'bg-emerald-500' : 'bg-zinc-600'}"></div>
+                <div class="font-bold text-white truncate">${escapeHtml(m.name)}</div>
+              </div>
+              <div class="px-2 py-0.5 rounded-lg ${count > 0 ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/60' : 'bg-zinc-800 text-zinc-400'} font-black text-xs shrink-0">
+                ${count} টি এন্ট্রি
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
 
     // Line Chart (Red Trend)
     const trendCtx = document.getElementById('trendChart')?.getContext('2d');

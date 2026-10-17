@@ -592,15 +592,15 @@
           </div>
         </div>
 
-        <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
+        <div class="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
             <h3 class="font-bold text-white text-sm sm:text-base flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-              <span data-i18n="chart_status_title">স্ট্যাটাস অনুপাত</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block"></span>
+              <span>আজকের কর্মকর্তা পারফরম্যান্স (কে কয়টি এন্ট্রি দিয়েছেন)</span>
             </h3>
           </div>
-          <div class="relative h-64 w-full flex items-center justify-center">
-            <canvas id="statusChart"></canvas>
+          <div id="todayOfficersPerformanceList" class="space-y-2 overflow-y-auto max-h-60 pr-1 text-xs">
+            <!-- Populated dynamically -->
           </div>
         </div>
 

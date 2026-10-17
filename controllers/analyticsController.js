@@ -128,14 +128,13 @@ export async function getChartsData(req, res) {
           ORDER BY count DESC
         `).all(),
         db.prepare(`
-          SELECT m.name, COUNT(v.id) as count
+          SELECT m.id, m.name, m.phone, m.role, COUNT(CASE WHEN v.visit_date = ? THEN v.id END) as today_count
           FROM team_members m
           LEFT JOIN visits v ON m.id = v.member_id
           WHERE m.active = 1
           GROUP BY m.id
-          ORDER BY count DESC
-          LIMIT 10
-        `).all()
+          ORDER BY today_count DESC, m.name ASC
+        `).all(today)
       ]);
 
       return res.json({
