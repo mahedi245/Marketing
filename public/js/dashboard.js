@@ -237,6 +237,36 @@ async function refreshKPIs() {
           topPerfEl.innerHTML = `<div class="text-sm text-zinc-600 font-medium mt-1">--</div>`;
         }
       }
+
+      // Render Absent Officers Today Widget
+      const absentContainer = document.getElementById('absentOfficersContainer');
+      const absentList = document.getElementById('absentOfficersList');
+      const absentCount = document.getElementById('absentOfficersCount');
+      if (absentContainer && absentList && absentCount) {
+        const absent = data.absentOfficers || [];
+        absentCount.textContent = absent.length;
+        if (absent.length > 0) {
+          absentContainer.classList.remove('hidden');
+          absentList.innerHTML = '';
+          absent.forEach(off => {
+            absentList.innerHTML += `
+              <div class="bg-rose-950/40 border border-rose-900/50 rounded-xl p-3 flex justify-between items-center hover:bg-rose-950/60 transition-colors">
+                <div>
+                  <div class="font-bold text-white text-sm">${escapeHtml(off.name)}</div>
+                  <div class="text-[10px] text-zinc-400 capitalize mt-0.5">${escapeHtml(off.role || 'Marketing Officer')} • ${escapeHtml(off.phone || 'N/A')}</div>
+                </div>
+                ${off.phone ? `
+                  <a href="tel:${escapeHtml(off.phone)}" class="w-8 h-8 rounded bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  </a>
+                ` : ''}
+              </div>
+            `;
+          });
+        } else {
+          absentContainer.classList.add('hidden');
+        }
+      }
     }
   } catch (err) { console.error('Error fetching KPIs:', err); }
 }

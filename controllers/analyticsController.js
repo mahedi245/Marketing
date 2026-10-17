@@ -14,6 +14,16 @@ export async function getDashboardKPI(req, res) {
 
     if (isAdmin) {
       // Global Company KPIs for Admin using combined single-query conditional aggregation
+      // Get officers who haven't submitted any visits today
+      const absentOfficers = await db.prepare(`
+        SELECT id, name, phone, role
+        FROM team_members
+        WHERE active = 1 AND id NOT IN (
+          SELECT DISTINCT member_id FROM visits WHERE visit_date = ?
+        )
+        ORDER BY name ASC
+      `).all(today);
+
       const [countsRes, topPerformer, statusCounts] = await Promise.all([
         db.prepare(`
           SELECT
@@ -55,7 +65,8 @@ export async function getDashboardKPI(req, res) {
           closedWonCount,
           pendingFollowUps,
           topPerformer: topPerformer || { name: 'None', visit_count: 0 },
-          statusCounts
+          statusCounts,
+          absentOfficers
         }
       });
     } else {
