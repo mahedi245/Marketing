@@ -421,8 +421,7 @@ function openAdminModal() { document.getElementById('adminLoginModal').classList
 function closeOfficerModal() { document.getElementById('officerLoginModal').classList.add('hidden'); }
 
 // Change Admin PIN
-function openChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.remove('hidden'); }
-function closeChangeAdminPinModal() { document.getElementById('changeAdminPinModal').classList.add('hidden'); }
+// (Handled below with full profile support)
 
 // Change Officer PIN & Profile
 function openChangeOfficerPinModal() {
@@ -571,7 +570,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateUserUI();
 
   // Initialize Real-time Online Presence Poll (Heartbeat every 15s)
-  const myClientId = 'client_' + Math.random().toString(36.substring(2, 9));
+  const myClientId = 'client_' + Math.random().toString(36).replace(/[^a-z0-9]/g, '').substring(0, 7);
   async function pingPresence() {
     try {
       const officer = api.getCurrentOfficer();
