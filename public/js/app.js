@@ -146,6 +146,38 @@ function updateUserUI() {
   }
 }
 
+// Fast Reverse Geocoding helper for photo watermark
+async function getLiveAreaName(lat, long) {
+  // 1. Try BigDataCloud (fast, client-side, CORS-friendly)
+  try {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 2500);
+    const bdcRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${long}&localityLanguage=en`, { signal: ctrl.signal });
+    clearTimeout(to);
+    if (bdcRes.ok) {
+      const data = await bdcRes.json();
+      const parts = [data.locality || data.city, data.principalSubdivision].filter(Boolean);
+      if (parts.length > 0) {
+        return parts.join(', ');
+      }
+    }
+  } catch (e) {}
+
+  // 2. Try server-side reverse geocoding proxy
+  try {
+    const sRes = await fetch(`/api/geocode/reverse?lat=${lat}&long=${long}`);
+    if (sRes.ok) {
+      const sData = await sRes.json();
+      if (sData.success && sData.area) {
+        return sData.area;
+      }
+    }
+  } catch (e) {}
+
+  // 3. Fallback to coordinates
+  return `${lat.toFixed(4)}, ${long.toFixed(4)}`;
+}
+
 // Global Image Resizer & Preview utility with Live Geocoded Watermark
 window.previewImage = function(event, imgId, hiddenInputId) {
   const file = event.target.files[0];
@@ -178,12 +210,50 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Use address from input if available instantly without slow external reverse-geocoding fetch
-      let areaName = 'Dhaka';
-      const addrInput = document.getElementById('entryAddress') || document.getElementById('editAddress');
-      if (addrInput && addrInput.value.trim()) {
-        areaName = addrInput.value.trim();
+      // 1. Capture Live GPS Location immediately when photo is chosen/taken
+      let areaName = '';
+      let lat = null;
+      let long = null;
+
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 7000,
+            maximumAge: 15000
+          });
+        });
+        lat = position.coords.latitude;
+        long = position.coords.longitude;
+        window.lastCapturedGps = { lat, long };
+      } catch (geoErr) {
+        console.warn('Geolocation capture in previewImage:', geoErr);
       }
+
+      // 2. Resolve real area name from GPS coordinates
+      if (lat && long && !(lat === 0 && long === 0)) {
+        try {
+          areaName = await getLiveAreaName(lat, long);
+        } catch (e) {}
+      }
+
+      // 3. Fallback to typed address if GPS failed or is offline
+      if (!areaName) {
+        const addrInput = document.getElementById('entryAddress') || document.getElementById('editAddress');
+        if (addrInput && addrInput.value.trim()) {
+          areaName = addrInput.value.trim();
+        } else {
+          areaName = 'Dhaka';
+        }
+      }
+
+      // 4. Auto-fill entryAddress field if empty with the live area
+      const entryAddrInput = document.getElementById('entryAddress');
+      if (entryAddrInput && !entryAddrInput.value.trim() && areaName && areaName !== 'Dhaka') {
+        entryAddrInput.value = areaName;
+      }
+
+      const displayArea = areaName.length > 25 ? areaName.substring(0, 23) + '..' : areaName;
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -194,7 +264,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
       logoImg.crossOrigin = 'anonymous';
       logoImg.onload = function() {
         const padding = 12;
-        const boxWidth = 240;
+        const boxWidth = 260;
         const boxHeight = 64;
         const boxX = padding;
         const boxY = height - boxHeight - padding; // Bottom-Left Corner
@@ -228,7 +298,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
 
         ctx.fillStyle = '#38bdf8';
         ctx.font = '11px sans-serif';
-        ctx.fillText(`📍 ${areaName}`, textStartX, boxY + 39);
+        ctx.fillText(`📍 ${displayArea}`, textStartX, boxY + 39);
 
         ctx.fillStyle = '#f59e0b';
         ctx.font = '10px sans-serif';
@@ -241,7 +311,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
 
       logoImg.onerror = function() {
         const padding = 12;
-        const boxWidth = 210;
+        const boxWidth = 240;
         const boxHeight = 52;
         const boxX = padding;
         const boxY = height - boxHeight - padding; // Bottom-Left Corner
@@ -257,7 +327,7 @@ window.previewImage = function(event, imgId, hiddenInputId) {
 
         ctx.fillStyle = '#38bdf8';
         ctx.font = '11px sans-serif';
-        ctx.fillText(`📍 ${areaName}`, boxX + 10, boxY + 33);
+        ctx.fillText(`📍 ${displayArea}`, boxX + 10, boxY + 33);
 
         ctx.fillStyle = '#f59e0b';
         ctx.font = '10px sans-serif';

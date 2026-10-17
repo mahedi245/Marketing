@@ -144,18 +144,22 @@ async function initEntryForm() {
 
         // Add GPS location - Mandatory and validate to block fake 0.0.0.0 locations
         try {
-          const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0
+          let lat = window.lastCapturedGps?.lat;
+          let long = window.lastCapturedGps?.long;
+
+          if (!lat || !long || lat === 0 || long === 0) {
+            const position = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+              });
             });
-          });
+            lat = position.coords.latitude;
+            long = position.coords.longitude;
+          }
 
-          const lat = position.coords.latitude;
-          const long = position.coords.longitude;
-
-          if (!lat || !long || lat === 0 || long === 0 || lat === 0.0 && long === 0.0) {
+          if (!lat || !long || lat === 0 || long === 0 || (lat === 0.0 && long === 0.0)) {
             throw new Error('Invalid GPS coordinates (0.0)');
           }
 
@@ -188,6 +192,7 @@ async function initEntryForm() {
              document.getElementById('entryPhotoData').value = '';
              document.getElementById('entryPhotoPreview').src = '/logo.png';
           }
+          window.lastCapturedGps = null;
 
           // Reset status to Interested
           selectedStatus = 'Interested';
