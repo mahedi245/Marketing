@@ -53,8 +53,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// For local running
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+// For local running or Render (where process.env.NODE_ENV === 'production' but no Vercel)
+if (!process.env.VERCEL) {
   ensureDbReady().then(() => {
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server listening on port ${PORT}`);
