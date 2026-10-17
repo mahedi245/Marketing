@@ -214,6 +214,13 @@ export async function createVisit(req, res) {
       return res.status(400).json({ success: false, error: 'Status is required' });
     }
 
+    if (!photo_data) {
+      return res.status(400).json({ success: false, error: 'Selfie or site photo with watermark is mandatory' });
+    }
+    if (!lat || !long || lat === 0 || long === 0 || Number(lat) === 0 || Number(long) === 0) {
+      return res.status(400).json({ success: false, error: 'Valid GPS location is mandatory to prevent cheating' });
+    }
+
     const result = await db.prepare(`
       INSERT INTO visits (
         member_id,
