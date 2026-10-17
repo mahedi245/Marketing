@@ -100,4 +100,30 @@ router.get('/geocode/reverse', async (req, res) => {
   }
 });
 
+// In-memory active online presence store
+const activeClients = new Map();
+
+router.post('/presence', (req, res) => {
+  try {
+    const { clientId, name } = req.body;
+    if (!clientId) {
+      return res.status(400).json({ success: false, error: 'Missing clientId' });
+    }
+
+    const now = Date.now();
+    activeClients.set(clientId, { name: name || 'Officer', lastSeen: now });
+
+    // Clean up clients inactive for more than 45 seconds
+    for (const [id, info] of activeClients.entries()) {
+      if (now - info.lastSeen > 45000) {
+        activeClients.delete(id);
+      }
+    }
+
+    res.json({ success: true, activeCount: activeClients.size });
+  } catch (err) {
+    res.json({ success: true, activeCount: 1 });
+  }
+});
+
 export default router;

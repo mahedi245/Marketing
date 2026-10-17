@@ -570,6 +570,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updateUserUI();
 
+  // Initialize Real-time Online Presence Poll (Heartbeat every 15s)
+  const myClientId = 'client_' + Math.random().toString(36.substring(2, 9));
+  async function pingPresence() {
+    try {
+      const officer = api.getCurrentOfficer();
+      const name = officer ? officer.name : (api.isAdmin() ? 'Administrator' : 'Guest Officer');
+      const res = await fetch('/api/presence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: myClientId, name })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && typeof data.activeCount === 'number') {
+          const countEl = document.getElementById('liveOnlineCount');
+          if (countEl) {
+            countEl.textContent = `অনলাইন: ${data.activeCount} জন`;
+          }
+        }
+      }
+    } catch (e) {}
+  }
+  pingPresence();
+  setInterval(pingPresence, 15000);
+
   const hash = window.location.hash.replace('#', '');
   if (hash === 'entry') switchTab('entry');
   else if (hash === 'myVisits') switchTab('myVisits');
