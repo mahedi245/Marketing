@@ -96,6 +96,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span>TA/DA ও খরচ</span>
           </button>
+          <button id="navBtnGallery" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>ফটো গ্যালারি</span>
+          </button>
           <button id="navBtnDashboard" class="px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 text-zinc-300 hover:text-white">
             <svg id="dashboardLockIcon" class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
             <span data-i18n="nav_dashboard">অ্যাডমিন</span>
@@ -134,7 +138,7 @@
       <div class="block md:hidden pb-2.5 space-y-2">
 
         <!-- Mobile Main Navigation Tabs -->
-        <div class="bg-zinc-950 p-1 rounded-xl text-xs font-bold border border-zinc-800 grid grid-cols-3 gap-1 text-center">
+        <div class="bg-zinc-950 p-1 rounded-xl text-xs font-bold border border-zinc-800 grid grid-cols-5 gap-1 text-center">
           <button id="navBtnEntryMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             <span data-i18n="nav_entry">দ্রুত এন্ট্রি</span>
@@ -146,6 +150,10 @@
           <button id="navBtnExpensesMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <span>TA/DA</span>
+          </button>
+          <button id="navBtnGalleryMob" class="py-2 px-1 rounded-lg transition-all flex flex-col items-center justify-center space-y-0.5 text-zinc-300 hover:text-white">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>গ্যালারি</span>
           </button>
           <button id="navBtnDashboardMob" class="py-2 rounded-lg transition-all flex items-center justify-center space-x-1 text-zinc-300 hover:text-white">
             <svg id="dashboardLockIconMob" class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -430,6 +438,35 @@
         <h2 class="text-lg sm:text-xl font-black text-white">আমার TA/DA ও খরচসমূহ</h2>
       </div>
       <!-- Expense table and add button will go here -->
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: PHOTO GALLERY (AUTO-SAVED BY OFFICER) -->
+    <!-- ========================================== -->
+    <div id="viewGallery" class="animate-fade-in space-y-6 hidden">
+      <div class="bg-zinc-900 p-4 sm:p-5 rounded-2xl border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg sm:text-xl font-black text-white flex items-center space-x-2">
+            <span>📷 কর্মকর্তা অনুযায়ী ভিজিট ফটো গ্যালারি</span>
+            <span id="galleryCountSummary" class="text-xs bg-primary-950 text-primary-300 px-2.5 py-1 rounded-full border border-primary-800">মোট ছবি: ০ টি</span>
+          </h2>
+          <p class="text-xs text-zinc-400 mt-0.5">কর্মকর্তাগণ ফিল্ড ভিজিট এন্ট্রি করার সময় যে ছবি আপলোড করেন, তা এখানে কর্মকর্তা অনুযায়ী স্বয়ংক্রিয়ভাবে সাজানো থাকে।</p>
+        </div>
+        <div class="flex items-center space-x-3 w-full sm:w-auto">
+          <select id="galleryOfficerFilter" onchange="fetchAndRenderGallery()" class="px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-xl text-xs sm:text-sm text-white focus:border-primary-500 outline-hidden w-full sm:w-48">
+            <option value="">সকল কর্মকর্তা</option>
+          </select>
+          <button onclick="fetchAndRenderGallery()" class="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 shrink-0 shadow">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>রিফ্রেশ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gallery Groups Container -->
+      <div id="galleryGroupsContainer" class="space-y-8">
+        <!-- Dynamically populated groups -->
+      </div>
     </div>
 
     <!-- ========================================== -->
@@ -1168,6 +1205,42 @@
     </div>
   </div>
 
+  <!-- ========================================== -->
+  <!-- MODAL: LIGHTBOX FOR PHOTO GALLERY -->
+  <!-- ========================================== -->
+  <div id="photoLightboxModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="relative max-w-4xl w-full bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
+      <!-- Image View -->
+      <div class="md:w-3/5 bg-black flex items-center justify-center p-4 relative">
+        <img id="lightboxImage" src="" alt="Visit Photo" class="max-h-[75vh] w-auto object-contain rounded-lg">
+        <button onclick="closePhotoLightbox()" class="absolute top-3 left-3 md:hidden bg-zinc-900/80 hover:bg-zinc-800 text-white p-2 rounded-full">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <!-- Details View -->
+      <div class="md:w-2/5 p-5 flex flex-col justify-between space-y-4 overflow-y-auto">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-2.5 py-1 rounded-full bg-primary-950 text-primary-300 border border-primary-800 font-bold">ভিজিট বিস্তারিত</span>
+            <button onclick="closePhotoLightbox()" class="hidden md:flex text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div>
+            <h3 id="lightboxTitle" class="text-base sm:text-lg font-bold text-white"></h3>
+            <p id="lightboxSubtitle" class="text-xs text-primary-400 font-medium"></p>
+          </div>
+          <div id="lightboxDetails" class="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+        <div class="pt-4 border-t border-zinc-800 flex justify-end">
+          <button onclick="closePhotoLightbox()" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold">বন্ধ করুন</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
@@ -1175,6 +1248,7 @@
   <script src="/js/dashboard.js"></script>
   <script src="/js/team.js"></script>
   <script src="/js/expenses.js"></script>
+  <script src="/js/gallery.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>

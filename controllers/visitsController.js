@@ -65,13 +65,13 @@ export async function getVisits(req, res) {
     }
 
     if (followUpOnly === 'true') {
-      whereClauses.push('v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != ""');
+      whereClauses.push("v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != ''");
     }
 
     if (dueFollowUpOnly === 'true') {
       // Due today or earlier, and not already closed
       const todayDate = new Date().toISOString().split('T')[0];
-      whereClauses.push('v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != "" AND v.next_follow_up_date <= ? AND v.status != "Closed/Won" AND v.status != "Not Interested"');
+      whereClauses.push("v.next_follow_up_date IS NOT NULL AND v.next_follow_up_date != '' AND v.next_follow_up_date <= ? AND v.status != 'Closed/Won' AND v.status != 'Not Interested'");
       params.push(todayDate);
     }
 
@@ -81,7 +81,7 @@ export async function getVisits(req, res) {
     const countSql = `
       SELECT COUNT(*) as total
       FROM visits v
-      JOIN team_members m ON v.member_id = m.id
+      LEFT JOIN team_members m ON v.member_id = m.id
       ${whereSql}
     `;
     const countRes = await db.prepare(countSql).get(...params);
@@ -119,7 +119,7 @@ export async function getVisits(req, res) {
         v.long,
         v.entry_time
       FROM visits v
-      JOIN team_members m ON v.member_id = m.id
+      LEFT JOIN team_members m ON v.member_id = m.id
       ${whereSql}
       ORDER BY ${sortCol} ${sortDir}, v.id DESC
       LIMIT ? OFFSET ?
@@ -391,6 +391,64 @@ export async function searchCustomerByPhone(req, res) {
     res.json({ success: true, data: existing || null });
   } catch (error) {
     console.error('Error in searchCustomerByPhone:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+export async function getPhotoGallery(req, res) {
+  try {
+    const isAdmin = verifyIsAdmin(req);
+    const officerId = req.headers['x-officer-id'] || req.query.officerId;
+
+    let whereClause = "WHERE v.photo_data IS NOT NULL AND v.photo_data != ''";
+    const params = [];
+
+    if (!isAdmin) {
+      if (!officerId) {
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+      }
+      whereClause += ' AND v.member_id = ?';
+      params.push(Number(officerId));
+    }
+
+    const { officer_id, startDate, endDate } = req.query;
+    if (isAdmin && officer_id) {
+      whereClause += ' AND v.member_id = ?';
+      params.push(Number(officer_id));
+    }
+    if (startDate) {
+      whereClause += ' AND v.visit_date >= ?';
+      params.push(startDate);
+    }
+    if (endDate) {
+      whereClause += ' AND v.visit_date <= ?';
+      params.push(endDate);
+    }
+
+    const photos = await db.prepare(`
+      SELECT
+        v.id,
+        v.member_id,
+        m.name as member_name,
+        m.role as member_role,
+        v.customer_name,
+        v.site_name,
+        v.address,
+        v.phone_number,
+        v.visit_date,
+        v.status,
+        v.photo_data,
+        v.created_at,
+        v.entry_time
+      FROM visits v
+      JOIN team_members m ON v.member_id = m.id
+      ${whereClause}
+      ORDER BY v.visit_date DESC, v.id DESC
+    `).all(...params);
+
+    res.json({ success: true, data: photos });
+  } catch (error) {
+    console.error('Error in getPhotoGallery:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }

@@ -6,16 +6,19 @@ function switchTab(tabName) {
   const entryView = document.getElementById('viewEntry');
   const myVisitsView = document.getElementById('viewMyVisits');
   const expensesView = document.getElementById('viewExpenses');
+  const galleryView = document.getElementById('viewGallery');
   const dashboardView = document.getElementById('viewDashboard');
 
   const navBtnEntry = document.getElementById('navBtnEntry');
   const navBtnMyVisits = document.getElementById('navBtnMyVisits');
   const navBtnExpenses = document.getElementById('navBtnExpenses');
+  const navBtnGallery = document.getElementById('navBtnGallery');
   const navBtnDashboard = document.getElementById('navBtnDashboard');
 
   const navBtnEntryMob = document.getElementById('navBtnEntryMob');
   const navBtnMyVisitsMob = document.getElementById('navBtnMyVisitsMob');
   const navBtnExpensesMob = document.getElementById('navBtnExpensesMob');
+  const navBtnGalleryMob = document.getElementById('navBtnGalleryMob');
   const navBtnDashboardMob = document.getElementById('navBtnDashboardMob');
 
   // AUTHENTICATION CHECKS
@@ -41,13 +44,14 @@ function switchTab(tabName) {
   window.location.hash = tabName;
 
   // RESET VIEWS
-  entryView.classList.add('hidden');
-  myVisitsView.classList.add('hidden');
-  expensesView.classList.add('hidden');
-  dashboardView.classList.add('hidden');
+  entryView?.classList.add('hidden');
+  myVisitsView?.classList.add('hidden');
+  expensesView?.classList.add('hidden');
+  galleryView?.classList.add('hidden');
+  dashboardView?.classList.add('hidden');
 
   // RESET BUTTONS
-  [navBtnEntry, navBtnMyVisits, navBtnExpenses, navBtnDashboard, navBtnEntryMob, navBtnMyVisitsMob, navBtnExpensesMob, navBtnDashboardMob].forEach(btn => {
+  [navBtnEntry, navBtnMyVisits, navBtnExpenses, navBtnGallery, navBtnDashboard, navBtnEntryMob, navBtnMyVisitsMob, navBtnExpensesMob, navBtnGalleryMob, navBtnDashboardMob].forEach(btn => {
     if (btn) {
       btn.classList.remove('bg-primary-600', 'text-white');
       btn.classList.add('text-zinc-300', 'hover:text-white');
@@ -56,14 +60,14 @@ function switchTab(tabName) {
 
   // ACTIVATE SELECTED
   if (tabName === 'entry') {
-    entryView.classList.remove('hidden');
+    entryView?.classList.remove('hidden');
     navBtnEntry?.classList.add('bg-primary-600', 'text-white');
     navBtnEntry?.classList.remove('text-zinc-300');
     navBtnEntryMob?.classList.add('bg-primary-600', 'text-white');
     navBtnEntryMob?.classList.remove('text-zinc-300');
   }
   else if (tabName === 'myVisits') {
-    myVisitsView.classList.remove('hidden');
+    myVisitsView?.classList.remove('hidden');
     navBtnMyVisits?.classList.add('bg-primary-600', 'text-white');
     navBtnMyVisits?.classList.remove('text-zinc-300');
     navBtnMyVisitsMob?.classList.add('bg-primary-600', 'text-white');
@@ -71,15 +75,23 @@ function switchTab(tabName) {
     if (window.fetchAndRenderMyVisits) fetchAndRenderMyVisits();
   }
   else if (tabName === 'expenses') {
-    expensesView.classList.remove('hidden');
+    expensesView?.classList.remove('hidden');
     navBtnExpenses?.classList.add('bg-primary-600', 'text-white');
     navBtnExpenses?.classList.remove('text-zinc-300');
     navBtnExpensesMob?.classList.add('bg-primary-600', 'text-white');
     navBtnExpensesMob?.classList.remove('text-zinc-300');
     if (window.initExpenses) initExpenses();
   }
+  else if (tabName === 'gallery') {
+    galleryView?.classList.remove('hidden');
+    navBtnGallery?.classList.add('bg-primary-600', 'text-white');
+    navBtnGallery?.classList.remove('text-zinc-300');
+    navBtnGalleryMob?.classList.add('bg-primary-600', 'text-white');
+    navBtnGalleryMob?.classList.remove('text-zinc-300');
+    if (window.fetchAndRenderGallery) fetchAndRenderGallery();
+  }
   else if (tabName === 'dashboard') {
-    dashboardView.classList.remove('hidden');
+    dashboardView?.classList.remove('hidden');
     navBtnDashboard?.classList.add('bg-primary-600', 'text-white');
     navBtnDashboard?.classList.remove('text-zinc-300');
     navBtnDashboardMob?.classList.add('bg-primary-600', 'text-white');
@@ -539,11 +551,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('navBtnEntry')?.addEventListener('click', () => switchTab('entry'));
   document.getElementById('navBtnMyVisits')?.addEventListener('click', () => switchTab('myVisits'));
   document.getElementById('navBtnExpenses')?.addEventListener('click', () => switchTab('expenses'));
+  document.getElementById('navBtnGallery')?.addEventListener('click', () => switchTab('gallery'));
   document.getElementById('navBtnDashboard')?.addEventListener('click', () => switchTab('dashboard'));
 
   document.getElementById('navBtnEntryMob')?.addEventListener('click', () => switchTab('entry'));
   document.getElementById('navBtnMyVisitsMob')?.addEventListener('click', () => switchTab('myVisits'));
   document.getElementById('navBtnExpensesMob')?.addEventListener('click', () => switchTab('expenses'));
+  document.getElementById('navBtnGalleryMob')?.addEventListener('click', () => switchTab('gallery'));
   document.getElementById('navBtnDashboardMob')?.addEventListener('click', () => switchTab('dashboard'));
 
   document.getElementById('navBtnShare')?.addEventListener('click', () => {
@@ -598,6 +612,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (hash === 'entry') switchTab('entry');
   else if (hash === 'myVisits') switchTab('myVisits');
   else if (hash === 'expenses') switchTab('expenses');
+  else if (hash === 'gallery') switchTab('gallery');
   else if (hash === 'dashboard') switchTab('dashboard');
   else switchTab('entry'); // Default to entry always
 });

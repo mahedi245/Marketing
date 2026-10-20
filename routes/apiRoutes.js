@@ -22,6 +22,7 @@ router.delete('/team/:id', teamController.deleteMember);
 
 // Visits endpoints
 router.get('/visits', visitsController.getVisits);
+	router.get('/visits/gallery', visitsController.getPhotoGallery);
 router.get('/visits/search', visitsController.searchCustomerByPhone);
 router.post('/visits', visitsController.createVisit);
 router.get('/visits/:id', visitsController.getVisitById);

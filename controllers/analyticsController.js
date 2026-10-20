@@ -104,6 +104,7 @@ export async function getDashboardKPI(req, res) {
 
 export async function getChartsData(req, res) {
   try {
+    const today = new Date().toISOString().split('T')[0];
     const isAdmin = verifyIsAdmin(req);
     const officerId = req.headers['x-officer-id'] || req.query.officerId;
 
